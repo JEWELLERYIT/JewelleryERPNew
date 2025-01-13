@@ -65,10 +65,12 @@ class _FilterScreenState extends State<FilterScreen> {
     print("Home API: $responseData");
 
     setState(() {
-      itemList = responseData['item'];
-      metalList = responseData['metal'];
-      processList = responseData['process'];
-      clientList = responseData['client'];
+      itemList = responseData['item']!;
+      metalList = responseData['metal']!;
+      processList = responseData['process']!;
+      if (responseData.containsKey('client')) {
+        clientList = responseData['process'];
+      }
     });
     // }
   }
@@ -156,6 +158,12 @@ class _FilterScreenState extends State<FilterScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   void onSubmitSearch(String value) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => MaxWidthContainer(
+                  child: HomeDashBoard(keyName: "search", data: value),
+                )));
     // _hasMore = true;
     // _productList.clear();
     // page = 1;
@@ -279,10 +287,14 @@ class _FilterScreenState extends State<FilterScreen> {
                       },
                     ),
                   ),
-                  buildCategoryList("Items", itemList, "item"),
-                  buildCategoryList("Metals", metalList, "metal"),
-                  buildCategoryList("Process Wise", processList, "process"),
-                  buildCategoryList("Clients", clientList, "username"),
+                  if (itemList.isNotEmpty)
+                    buildCategoryList("Items", itemList, "item"),
+                  if (metalList.isNotEmpty)
+                    buildCategoryList("Metals", metalList, "metal"),
+                  if (processList.isNotEmpty)
+                    buildCategoryList("Process Wise", processList, "process"),
+                  if (clientList.isNotEmpty)
+                    buildCategoryList("Clients", clientList, "username"),
                 ],
               ),
             ),
