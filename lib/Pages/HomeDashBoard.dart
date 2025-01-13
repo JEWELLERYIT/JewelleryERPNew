@@ -52,17 +52,19 @@ class _HomeScreenState extends State<HomeDashBoard> {
       'companyid': userDataMap['companyid'],
       'username': userDataMap['username'],
       'sortby': sortby,
+      'allstatus': "1",
+      'isuser': userDataMap["isAdmin"],
       widget.keyName: widget.data
     };
 
     String response =
-        await constans.callApi(formData, StaticUrl.productListUrl);
+        await constans.callApi(formData, StaticUrl.loginUrl);
     print("responseData $formData $response");
 
     Map<String, dynamic> responseData = json.decode(response);
 
     setState(() {
-      productList = responseData['response'];
+      productList = responseData['data'];
       // print("productList - productList ${productList.length}");
     });
   }

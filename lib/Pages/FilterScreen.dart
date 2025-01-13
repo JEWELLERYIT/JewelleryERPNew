@@ -62,53 +62,19 @@ class _FilterScreenState extends State<FilterScreen> {
     String response = await constans.callApi(formData, StaticUrl.loginUrl);
     Map<String, dynamic> responseData = json.decode(response);
 
-    print("Home API: $responseData");
+    print("Home API: $formData");
 
     setState(() {
       itemList = responseData['item']!;
       metalList = responseData['metal']!;
       processList = responseData['process']!;
       if (responseData.containsKey('client')) {
-        clientList = responseData['process'];
+        clientList = responseData['client'];
       }
     });
     // }
   }
 
-  Future<void> getItemList(Map<String, dynamic> userData) async {
-    var formData = {
-      'companyid': userData['companyid'],
-      'username': userData['username'],
-      'sortby': "sku",
-    };
-
-    String response = await constans.callApi(formData, StaticUrl.itemUrl);
-    Map<String, dynamic> responseData = json.decode(response);
-    setState(() {
-      itemList = responseData['response'];
-    });
-  }
-
-  Future<void> getProcessList(Map<String, dynamic> userData) async {
-    // var formData = {
-    //   'companyid': userData['companyid'],
-    //   'username': userData['username'],
-    //   'sortby': "sku",
-    // };
-    var formData = {
-      'username': "ex@gmail.com",
-      'companyid': "1001",
-      'all_summ': "1",
-      'isuser': "1",
-    };
-
-    String response = await constans.callApi(formData, StaticUrl.loginUrl);
-    // Map<String, dynamic> responseData = json.decode(response);
-    print("home responseData $response");
-    setState(() {
-      // processList = responseData['response'];
-    });
-  }
 
   void showLogoutModal() {
     showDialog(
