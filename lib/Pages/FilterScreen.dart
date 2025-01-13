@@ -288,33 +288,33 @@ class _FilterScreenState extends State<FilterScreen> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          dataMap.isNotEmpty
-              ? Column(
-                  children: [
-                    ColoredBox(
-                      color: Colors.blue, // Example color.
-                      child: PieChart(
-                        dataMap: dataMap,
-                        animationDuration: const Duration(milliseconds: 800),
-                        chartType: chartType,
-                        colorList: colorList,
-                        chartRadius: math.min(
-                            MediaQuery.of(context).size.width / 2.2, 300),
-                        // centerText: showCenterText ? "TECH" : null,
-                        legendOptions: LegendOptions(
-                          showLegends: showLegends,
-                          legendPosition: LegendPosition.right,
-                        ),
-                        chartValuesOptions: ChartValuesOptions(
-                          showChartValues: showChartValues,
-                          showChartValueBackground: true,
-                          decimalPlaces: 0,
-                        ),
-                      ), // Using the correct dataMap
-                    ),
-                  ],
-                )
-              : const Text(""),
+          // dataMap.isNotEmpty
+          //     ? Column(
+          //         children: [
+          //           ColoredBox(
+          //             color: Colors.blue, // Example color.
+          //             child: PieChart(
+          //               dataMap: dataMap,
+          //               animationDuration: const Duration(milliseconds: 800),
+          //               chartType: chartType,
+          //               colorList: colorList,
+          //               chartRadius: math.min(
+          //                   MediaQuery.of(context).size.width / 2.2, 300),
+          //               // centerText: showCenterText ? "TECH" : null,
+          //               legendOptions: LegendOptions(
+          //                 showLegends: showLegends,
+          //                 legendPosition: LegendPosition.right,
+          //               ),
+          //               chartValuesOptions: ChartValuesOptions(
+          //                 showChartValues: showChartValues,
+          //                 showChartValueBackground: true,
+          //                 decimalPlaces: 0,
+          //               ),
+          //             ), // Using the correct dataMap
+          //           ),
+          //         ],
+          //       )
+          //     : const Text(""),
           const Divider(),
           ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
@@ -341,7 +341,7 @@ class _FilterScreenState extends State<FilterScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => MaxWidthContainer(
-                            child: HomeDashBoard(keyName: key, data: item[key]),
+                            child: HomeDashBoard(keyName: key!="username"?key:"client", data: item[key]),
                           ),
                         ),
                       );

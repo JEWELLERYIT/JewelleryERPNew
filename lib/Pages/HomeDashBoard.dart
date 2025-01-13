@@ -54,7 +54,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
       'sortby': sortby,
       'allstatus': "1",
       'isuser': userDataMap["isAdmin"],
-      widget.keyName: widget.data
+       widget.keyName: widget.data
     };
 
     String response =
@@ -434,7 +434,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
                         children: [
                           Expanded(
                             child: Text(
-                              'Order Date: ${getDate(productList[index]['orderdate'])}',
+                              'Order Date:\n${getDate(productList[index]['orderdate'])}',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Color(0xFF4C5564),
@@ -485,10 +485,12 @@ class _HomeScreenState extends State<HomeDashBoard> {
                             color: const Color(0xFF4C5564),
                           ),
                           Expanded(
-                            child: Text(
-                              calculateDaysDifference(
-                                      productList[index]['deldate'])
-                                  .toString(),
+                            child: Center(
+                              child: Text(
+                                style: const TextStyle(color: Colors.red, fontSize: 12,),
+                                "${calculateDaysDifference(
+                                        productList[index]['deldate'])}Days",
+                              ),
                             ),
                           ),
                         ],
