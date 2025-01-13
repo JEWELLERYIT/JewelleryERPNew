@@ -450,7 +450,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
                           ),
                           Expanded(
                             child: Text(
-                              'Delivery Date: ${getDate(productList[index]['deldate'])}',
+                              'Delivery Date:\n${getDate(productList[index]['deldate'])}',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Color(0xFF4C5564),
@@ -489,7 +489,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
                               child: Text(
                                 style: const TextStyle(color: Colors.red, fontSize: 12,),
                                 "${calculateDaysDifference(
-                                        productList[index]['deldate'])}Days",
+                                        productList[index]['deldate'])} Days",
                               ),
                             ),
                           ),
