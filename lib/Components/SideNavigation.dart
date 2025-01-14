@@ -25,22 +25,15 @@ class _SideNavigation extends State<SideNavigation> {
   Constans constans = Constans();
 
   String userName = "";
-  String companyImage = "";
   String userEmail = "";
   int companyId = 0 ;
   void setUserData() async {
-    String? jsonString = await constans.getData(StaticConstant.userDetails);
+    String? jsonString = await constans.getData(StaticConstant.userData);
     print("User Details ------ $jsonString");
     final Map<String, dynamic> jsonMap = jsonDecode(jsonString!);
 
     setState(() {
-      companyImage = constans.getCompanyImageUrl( jsonMap['image']);
-      companyId = jsonMap['companyId'];
-    });
-
-    setState(() {
-      userName = jsonMap['company_name'];
-      userEmail = jsonMap['email'];
+      // userName = jsonMap['username'];
     });
   }
 
@@ -108,48 +101,22 @@ class _SideNavigation extends State<SideNavigation> {
     return SafeArea(
       child: Scaffold(
         body: Container(
+          width: double.infinity,
           color: Colors.white,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Drawer Header
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 30),
-                  if (companyImage != "")
-                    Center(
-
-                      child:Image.network(
-                        companyImage,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return const Center(
-                            child: SizedBox(
-                              height: 40,
-                              child: Text(""),
-                            ),
-                          );
-                        },
-                        fit: BoxFit.fitHeight,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Image.asset(
-                            'assets/digicat.png', // Replace with your image path
-                            height: 40, // Adjust the height as needed
-                          );
-
-                        },
-                      )
-                      // child: Image.asset(
-                      //   'assets/digicat.png', // Replace with your image path
-                      //   height: 40, // Adjust the height as needed
-                      // ),
-
-                      // child: Image.network(
-                      //   companyImage,
-                      //   height: 40,
-                      // ),
+                  Center(
+                    child: Image.asset(
+                      'assets/login_logo.jpeg', // Replace with your image path
+                      height: 30, // Adjust the height as needed
                     ),
+                  ),
                   Container(
                     margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
                     child: Column(
@@ -169,37 +136,23 @@ class _SideNavigation extends State<SideNavigation> {
               const SizedBox(height: 10),
 
               // The scrollable content
-              Expanded(
-                // This allows the SingleChildScrollView to take available space
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-
-                      // Add padding to prevent overflow at bottom
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context, false);
-                          showLogoutAlert();
-                        },
-                        style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF4C5564),
-                            minimumSize: const Size(100, 40),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                            )),
-                        child: const Text('Logout',
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                              color: Color(0xFFFFFFFF),
-                            )),
-                      ),
-                      const SizedBox(height: 20),
-                      // Add space after the button for scrollability
-                    ],
-                  ),
-                ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context, false);
+                  showLogoutAlert();
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4C5564),
+                    minimumSize: const Size(100, 40),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                    )),
+                child: const Text('Logout',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Color(0xFFFFFFFF),
+                    )),
               ),
             ],
           ),

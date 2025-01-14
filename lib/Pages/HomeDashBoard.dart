@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../Constants/Functions.dart';
 import '../Constants/StaticConstant.dart';
+import 'package:widget_zoom/widget_zoom.dart';
 
 class HomeDashBoard extends StatefulWidget {
   String keyName = "";
@@ -117,25 +118,6 @@ class _HomeScreenState extends State<HomeDashBoard> {
             ),
           ),
         ),
-          // actions: [
-          //
-          //   IconButton(
-          //     icon: const Icon(Icons.search, color: Colors.white),
-          //     onPressed: () => Navigator.of(context).pop(),
-          //   )
-          //   // IconButton(
-          //   //   icon: Image.asset(
-          //   //       color: StaticColor.themeColor,
-          //   //       'assets/search.png', // Replace with your image path
-          //   //       height: 20, // Adjust the height as needed
-          //   //       width: 20),
-          //   //   onPressed: () {
-          //   //     setState(() {
-          //   //       // _isSearchVisible = true;
-          //   //     });
-          //   //   },
-          //   // )
-          // ]
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -231,158 +213,6 @@ class _HomeScreenState extends State<HomeDashBoard> {
               ],
             ),
           ),
-          // Expanded(
-          //   child: GridView.count(
-          //     crossAxisCount: 2,
-          //     children: List.generate(productList.length, (index) {
-          //       final item =
-          //           productList[index]; // Accessing the item from the list
-          //       // print(object)
-          //       return Card(
-          //         elevation: 4,
-          //         shape: RoundedRectangleBorder(
-          //           borderRadius: BorderRadius.circular(8),
-          //         ),
-          //         child: Container(
-          //           height: 400,
-          //           margin: const EdgeInsets.all(5),
-          //           decoration: BoxDecoration(
-          //             border: Border.all(color: Colors.black.withOpacity(0.5), width: 1),
-          //             borderRadius: BorderRadius.circular(4),
-          //           ),
-          //           child: Expanded( // Add this to make the column scrollable
-          //             child: Column(
-          //               children: [
-          //                 Padding(
-          //                   padding: const EdgeInsets.only(top: 10),
-          //                   child: Text(
-          //                     item['sku'],
-          //                     style: const TextStyle(
-          //                       color: Color(0xFFFFC107),
-          //                       fontSize: 14,
-          //                       fontFamily: 'PoppinsMedium',
-          //                     ),
-          //                   ),
-          //                 ),
-          //                 GestureDetector(
-          //                   onTap: () => () {},
-          //                   child: Image.network(
-          //                     '$imageUrl${item['imagename']}',
-          //                     fit: BoxFit.fitHeight,
-          //                     errorBuilder: (context, error, stackTrace) {
-          //                       return Image.asset('assets/placeholder.png',
-          //                           fit: BoxFit.fitHeight);
-          //                     },
-          //                   ),
-          //                 ),
-          //                 const Divider(
-          //                   color: Color(0xFF4C5564),
-          //                   thickness: 1,
-          //                   height: 5,
-          //                 ),
-          //                 Row(
-          //                   children: [
-          //                     Expanded(
-          //                       child: Text(
-          //                         'Order Date: ${getDate(item['orderdate'])}',
-          //                         textAlign: TextAlign.center,
-          //                         style: const TextStyle(
-          //                           color: Color(0xFF4C5564),
-          //                           fontSize: 10,
-          //                           fontFamily: 'PoppinsMedium',
-          //                         ),
-          //                       ),
-          //                     ),
-          //                     Container(
-          //                       width: 1,
-          //                       height: 35,
-          //                       color: const Color(0xFF4C5564),
-          //                     ),
-          //                     Expanded(
-          //                       child: Text(
-          //                         'Delivery Date: ${getDate(item['deldate'])}',
-          //                         textAlign: TextAlign.center,
-          //                         style: const TextStyle(
-          //                           color: Color(0xFF4C5564),
-          //                           fontSize: 10,
-          //                           fontFamily: 'PoppinsMedium',
-          //                         ),
-          //                       ),
-          //                     ),
-          //                   ],
-          //                 ),
-          //                 const Divider(
-          //                   color: Color(0xFF4C5564),
-          //                   thickness: 1,
-          //                 ),
-          //                 Row(
-          //                   children: [
-          //                     Expanded(
-          //                       child: Text(
-          //                         item['process'],
-          //                         textAlign: TextAlign.center,
-          //                         style: const TextStyle(
-          //                           color: Color(0xFF4C5564),
-          //                           fontSize: 10,
-          //                           fontFamily: 'PoppinsMedium',
-          //                         ),
-          //                       ),
-          //                     ),
-          //                     Container(
-          //                       width: 1,
-          //                       height: 25,
-          //                       color: const Color(0xFF4C5564),
-          //                     ),
-          //                     Expanded(
-          //                       child: Text(
-          //                         calculateDaysDifference(item['deldate']).toString(),
-          //                       ),
-          //                     ),
-          //                   ],
-          //                 ),
-          //                 const Divider(
-          //                   color: Color(0xFF4C5564),
-          //                   thickness: 1,
-          //                 ),
-          //                 Row(
-          //                   children: [
-          //                     Expanded(
-          //                       child: Text(
-          //                         item['item'] ?? '',
-          //                         textAlign: TextAlign.center,
-          //                         style: const TextStyle(
-          //                           color: Color(0xFF4C5564),
-          //                           fontSize: 10,
-          //                           fontFamily: 'PoppinsMedium',
-          //                         ),
-          //                       ),
-          //                     ),
-          //                     Container(
-          //                       width: 1,
-          //                       height: 35,
-          //                       color: const Color(0xFF4C5564),
-          //                     ),
-          //                     Expanded(
-          //                       child: Text(
-          //                         item['metal'],
-          //                         textAlign: TextAlign.center,
-          //                         style: const TextStyle(
-          //                           color: Color(0xFF4C5564),
-          //                           fontSize: 10,
-          //                           fontFamily: 'PoppinsMedium',
-          //                         ),
-          //                       ),
-          //                     ),
-          //                   ],
-          //                 ),
-          //               ],
-          //             ),
-          //           ),
-          //         ),
-          //       );
-          //     }),
-          //   ),
-          // ),
           Expanded(
             child: ResponsiveGridList(
               horizontalGridMargin: 10,
@@ -412,16 +242,19 @@ class _HomeScreenState extends State<HomeDashBoard> {
                         padding: const EdgeInsets.all(8.0),
                         child: GestureDetector(
                           onTap: () => () {},
-                          child: Image.network(
-                            height: 150,
-                            '$imageUrl${productList[index]['imagename']}',
-                            fit: BoxFit.fitHeight,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                'assets/placeholder.png',
-                                fit: BoxFit.fitHeight,
-                              );
-                            },
+                          child: WidgetZoom(
+                            heroAnimationTag: 'zoomHero',
+                            zoomWidget: Image.network(
+                              height: 150,
+                              '$imageUrl${productList[index]['imagename']}',
+                              fit: BoxFit.fitHeight,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/placeholder.png',
+                                  fit: BoxFit.fitHeight,
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
