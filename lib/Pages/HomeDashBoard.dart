@@ -144,6 +144,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             margin: const EdgeInsets.only(bottom: 15, top: 1),
             color: const Color(0xFF4C5564), // Replace with your color
+
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -153,6 +154,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: StaticColor.lightGrey,
+
                       borderRadius:
                           BorderRadius.circular(20.0), // Rounded corners
                     ),
@@ -391,7 +393,8 @@ class _HomeScreenState extends State<HomeDashBoard> {
               children: List.generate(
                 productList.length,
                 (index) => Card(
-                  elevation: 4,
+                  color: Colors.white54,
+                  elevation: 1,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -402,8 +405,10 @@ class _HomeScreenState extends State<HomeDashBoard> {
                         child: Text(
                           productList[index]['sku'],
                           style: const TextStyle(
-                            color: Color(0xFFFFC107),
-                            fontSize: 14,
+                            //color: Color(0xFFFFC107),
+                            color: Colors.deepOrange,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                             fontFamily: 'PoppinsMedium',
                           ),
                         ),
@@ -450,7 +455,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
                           ),
                           Expanded(
                             child: Text(
-                              'Delivery Date: ${getDate(productList[index]['deldate'])}',
+                              'Delivery Date: \n${getDate(productList[index]['deldate'])}',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Color(0xFF4C5564),
@@ -489,7 +494,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
                               child: Text(
                                 style: const TextStyle(color: Colors.red, fontSize: 12,),
                                 "${calculateDaysDifference(
-                                        productList[index]['deldate'])}Days",
+                                        productList[index]['deldate'])} Days",
                               ),
                             ),
                           ),

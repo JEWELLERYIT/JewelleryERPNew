@@ -237,9 +237,9 @@ class _FilterScreenState extends State<FilterScreen> {
                     margin: const EdgeInsets.all(10),
                     child: ListTile(
                       title: const Text(
-                        "ALL",
+                        "All Products ",
                         style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                            fontSize: 18,color: Colors.deepOrange, fontWeight: FontWeight.bold),
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
@@ -258,7 +258,7 @@ class _FilterScreenState extends State<FilterScreen> {
                   if (metalList.isNotEmpty)
                     buildCategoryList("Metals", metalList, "metal"),
                   if (processList.isNotEmpty)
-                    buildCategoryList("Process Wise", processList, "process"),
+                    buildCategoryList("Process", processList, "process"),
                   if (clientList.isNotEmpty)
                     buildCategoryList("Clients", clientList, "username"),
                 ],
@@ -278,6 +278,7 @@ class _FilterScreenState extends State<FilterScreen> {
 
     return Card(
       margin: const EdgeInsets.all(10),
+      color: Colors.white54,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -329,7 +330,8 @@ class _FilterScreenState extends State<FilterScreen> {
                       "${item[key]} (${item['nos']})",
                       style: const TextStyle(
                         fontSize: 14,
-                        color: Colors.grey,
+                        color: Colors.black54,
+                        //color: Colors.grey,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
