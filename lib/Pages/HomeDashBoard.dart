@@ -369,12 +369,12 @@ class _HomeScreenState extends State<HomeDashBoard> {
                           ),
                         ],
                       ),
-                      Container(
+                      if(isAdmin == "1") Container(
                         width: double.infinity,
                         height: 1,
                         color: const Color(0xFF4C5564),
                       ),
-                     if(isAdmin == 1) Row(
+                     if(isAdmin == "1") Row(
                         children: [
                           const Expanded(
                             child: Text(
