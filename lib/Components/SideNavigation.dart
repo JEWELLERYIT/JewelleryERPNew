@@ -69,7 +69,7 @@ class _SideNavigation extends State<SideNavigation> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Digicat"),
+          title: const Text("JewelleryERP"),
           content: const Text(
               'Are you sure you want to log out? You will need to log in again to access your account.'),
           actions: <Widget>[
