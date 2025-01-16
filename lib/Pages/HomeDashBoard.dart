@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:responsive_grid_list/responsive_grid_list.dart';
 import '../Constants/Functions.dart';
 import '../Constants/StaticConstant.dart';
+import 'package:widget_zoom/widget_zoom.dart';
 
 class HomeDashBoard extends StatefulWidget {
   String keyName = "";
@@ -24,6 +25,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
   Constans constans = Constans();
 
   bool loaderStatus = false;
+  String isAdmin = "0";
   bool showBox = false;
   List<dynamic> productList = [];
 
@@ -46,6 +48,9 @@ class _HomeScreenState extends State<HomeDashBoard> {
     String? userData = await Constans().getData(StaticConstant.userData);
 
     Map<String, dynamic> userDataMap = jsonDecode(userData!);
+
+    isAdmin = userDataMap['isAdmin'];
+
     imageUrl =
         "https://digicat.in/webroot/uploads/erp/${userDataMap['companyid']}/";
     var formData = {
@@ -54,11 +59,10 @@ class _HomeScreenState extends State<HomeDashBoard> {
       'sortby': sortby,
       'allstatus': "1",
       'isuser': userDataMap["isAdmin"],
-       widget.keyName: widget.data
+      widget.keyName: widget.data
     };
 
-    String response =
-        await constans.callApi(formData, StaticUrl.loginUrl);
+    String response = await constans.callApi(formData, StaticUrl.loginUrl);
     print("responseData $formData $response");
 
     Map<String, dynamic> responseData = json.decode(response);
@@ -117,25 +121,6 @@ class _HomeScreenState extends State<HomeDashBoard> {
             ),
           ),
         ),
-          // actions: [
-          //
-          //   IconButton(
-          //     icon: const Icon(Icons.search, color: Colors.white),
-          //     onPressed: () => Navigator.of(context).pop(),
-          //   )
-          //   // IconButton(
-          //   //   icon: Image.asset(
-          //   //       color: StaticColor.themeColor,
-          //   //       'assets/search.png', // Replace with your image path
-          //   //       height: 20, // Adjust the height as needed
-          //   //       width: 20),
-          //   //   onPressed: () {
-          //   //     setState(() {
-          //   //       // _isSearchVisible = true;
-          //   //     });
-          //   //   },
-          //   // )
-          // ]
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +129,6 @@ class _HomeScreenState extends State<HomeDashBoard> {
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
             margin: const EdgeInsets.only(bottom: 15, top: 1),
             color: const Color(0xFF4C5564), // Replace with your color
-
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -154,7 +138,6 @@ class _HomeScreenState extends State<HomeDashBoard> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: StaticColor.lightGrey,
-
                       borderRadius:
                           BorderRadius.circular(20.0), // Rounded corners
                     ),
@@ -233,158 +216,6 @@ class _HomeScreenState extends State<HomeDashBoard> {
               ],
             ),
           ),
-          // Expanded(
-          //   child: GridView.count(
-          //     crossAxisCount: 2,
-          //     children: List.generate(productList.length, (index) {
-          //       final item =
-          //           productList[index]; // Accessing the item from the list
-          //       // print(object)
-          //       return Card(
-          //         elevation: 4,
-          //         shape: RoundedRectangleBorder(
-          //           borderRadius: BorderRadius.circular(8),
-          //         ),
-          //         child: Container(
-          //           height: 400,
-          //           margin: const EdgeInsets.all(5),
-          //           decoration: BoxDecoration(
-          //             border: Border.all(color: Colors.black.withOpacity(0.5), width: 1),
-          //             borderRadius: BorderRadius.circular(4),
-          //           ),
-          //           child: Expanded( // Add this to make the column scrollable
-          //             child: Column(
-          //               children: [
-          //                 Padding(
-          //                   padding: const EdgeInsets.only(top: 10),
-          //                   child: Text(
-          //                     item['sku'],
-          //                     style: const TextStyle(
-          //                       color: Color(0xFFFFC107),
-          //                       fontSize: 14,
-          //                       fontFamily: 'PoppinsMedium',
-          //                     ),
-          //                   ),
-          //                 ),
-          //                 GestureDetector(
-          //                   onTap: () => () {},
-          //                   child: Image.network(
-          //                     '$imageUrl${item['imagename']}',
-          //                     fit: BoxFit.fitHeight,
-          //                     errorBuilder: (context, error, stackTrace) {
-          //                       return Image.asset('assets/placeholder.png',
-          //                           fit: BoxFit.fitHeight);
-          //                     },
-          //                   ),
-          //                 ),
-          //                 const Divider(
-          //                   color: Color(0xFF4C5564),
-          //                   thickness: 1,
-          //                   height: 5,
-          //                 ),
-          //                 Row(
-          //                   children: [
-          //                     Expanded(
-          //                       child: Text(
-          //                         'Order Date: ${getDate(item['orderdate'])}',
-          //                         textAlign: TextAlign.center,
-          //                         style: const TextStyle(
-          //                           color: Color(0xFF4C5564),
-          //                           fontSize: 10,
-          //                           fontFamily: 'PoppinsMedium',
-          //                         ),
-          //                       ),
-          //                     ),
-          //                     Container(
-          //                       width: 1,
-          //                       height: 35,
-          //                       color: const Color(0xFF4C5564),
-          //                     ),
-          //                     Expanded(
-          //                       child: Text(
-          //                         'Delivery Date: ${getDate(item['deldate'])}',
-          //                         textAlign: TextAlign.center,
-          //                         style: const TextStyle(
-          //                           color: Color(0xFF4C5564),
-          //                           fontSize: 10,
-          //                           fontFamily: 'PoppinsMedium',
-          //                         ),
-          //                       ),
-          //                     ),
-          //                   ],
-          //                 ),
-          //                 const Divider(
-          //                   color: Color(0xFF4C5564),
-          //                   thickness: 1,
-          //                 ),
-          //                 Row(
-          //                   children: [
-          //                     Expanded(
-          //                       child: Text(
-          //                         item['process'],
-          //                         textAlign: TextAlign.center,
-          //                         style: const TextStyle(
-          //                           color: Color(0xFF4C5564),
-          //                           fontSize: 10,
-          //                           fontFamily: 'PoppinsMedium',
-          //                         ),
-          //                       ),
-          //                     ),
-          //                     Container(
-          //                       width: 1,
-          //                       height: 25,
-          //                       color: const Color(0xFF4C5564),
-          //                     ),
-          //                     Expanded(
-          //                       child: Text(
-          //                         calculateDaysDifference(item['deldate']).toString(),
-          //                       ),
-          //                     ),
-          //                   ],
-          //                 ),
-          //                 const Divider(
-          //                   color: Color(0xFF4C5564),
-          //                   thickness: 1,
-          //                 ),
-          //                 Row(
-          //                   children: [
-          //                     Expanded(
-          //                       child: Text(
-          //                         item['item'] ?? '',
-          //                         textAlign: TextAlign.center,
-          //                         style: const TextStyle(
-          //                           color: Color(0xFF4C5564),
-          //                           fontSize: 10,
-          //                           fontFamily: 'PoppinsMedium',
-          //                         ),
-          //                       ),
-          //                     ),
-          //                     Container(
-          //                       width: 1,
-          //                       height: 35,
-          //                       color: const Color(0xFF4C5564),
-          //                     ),
-          //                     Expanded(
-          //                       child: Text(
-          //                         item['metal'],
-          //                         textAlign: TextAlign.center,
-          //                         style: const TextStyle(
-          //                           color: Color(0xFF4C5564),
-          //                           fontSize: 10,
-          //                           fontFamily: 'PoppinsMedium',
-          //                         ),
-          //                       ),
-          //                     ),
-          //                   ],
-          //                 ),
-          //               ],
-          //             ),
-          //           ),
-          //         ),
-          //       );
-          //     }),
-          //   ),
-          // ),
           Expanded(
             child: ResponsiveGridList(
               horizontalGridMargin: 10,
@@ -393,8 +224,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
               children: List.generate(
                 productList.length,
                 (index) => Card(
-                  color: Colors.white54,
-                  elevation: 1,
+                  elevation: 4,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -405,10 +235,8 @@ class _HomeScreenState extends State<HomeDashBoard> {
                         child: Text(
                           productList[index]['sku'],
                           style: const TextStyle(
-                            //color: Color(0xFFFFC107),
-                            color: Colors.deepOrange,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            color: Color(0xFFFFC107),
+                            fontSize: 14,
                             fontFamily: 'PoppinsMedium',
                           ),
                         ),
@@ -417,16 +245,19 @@ class _HomeScreenState extends State<HomeDashBoard> {
                         padding: const EdgeInsets.all(8.0),
                         child: GestureDetector(
                           onTap: () => () {},
-                          child: Image.network(
-                            height: 150,
-                            '$imageUrl${productList[index]['imagename']}',
-                            fit: BoxFit.fitHeight,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                'assets/placeholder.png',
-                                fit: BoxFit.fitHeight,
-                              );
-                            },
+                          child: WidgetZoom(
+                            heroAnimationTag: 'zoomHero',
+                            zoomWidget: Image.network(
+                              height: 150,
+                              '$imageUrl${productList[index]['imagename']}',
+                              fit: BoxFit.fitHeight,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  'assets/placeholder.png',
+                                  fit: BoxFit.fitHeight,
+                                );
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -455,7 +286,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
                           ),
                           Expanded(
                             child: Text(
-                              'Delivery Date: \n${getDate(productList[index]['deldate'])}',
+                              'Delivery Date:\n${getDate(productList[index]['deldate'])}',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Color(0xFF4C5564),
@@ -492,9 +323,11 @@ class _HomeScreenState extends State<HomeDashBoard> {
                           Expanded(
                             child: Center(
                               child: Text(
-                                style: const TextStyle(color: Colors.red, fontSize: 12,),
-                                "${calculateDaysDifference(
-                                        productList[index]['deldate'])} Days",
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 12,
+                                ),
+                                "${calculateDaysDifference(productList[index]['deldate'])} Days",
                               ),
                             ),
                           ),
@@ -526,6 +359,42 @@ class _HomeScreenState extends State<HomeDashBoard> {
                           Expanded(
                             child: Text(
                               productList[index]['metal'],
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF4C5564),
+                                fontSize: 10,
+                                fontFamily: 'PoppinsMedium',
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if(isAdmin == "1") Container(
+                        width: double.infinity,
+                        height: 1,
+                        color: const Color(0xFF4C5564),
+                      ),
+                     if(isAdmin == "1") Row(
+                        children: [
+                          const Expanded(
+                            child: Text(
+                              "User Name",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Color(0xFF4C5564),
+                                fontSize: 10,
+                                fontFamily: 'PoppinsMedium',
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 1,
+                            height: 35,
+                            color: const Color(0xFF4C5564),
+                          ),
+                          Expanded(
+                            child: Text( //isAdmin
+                              productList[index]['username'],
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Color(0xFF4C5564),

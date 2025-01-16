@@ -39,32 +39,32 @@ class _SplashScreen extends State<SplashScreen> {
     // final hasBiometric = await hasBiometrics();
     String? userTOken = await Constans().getData(StaticConstant.userData);
 
-    // Navigator.pushReplacement(
-    //   context,
-    //   MaterialPageRoute(
-    //       builder: (context) => const LoginPage(
-    //         title: '',
-    //       )),
-    // );
-    if (userTOken == null || userTOken == "null") {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => const MaxWidthContainer(
-              child: LoginPage(
-                    title: '',
-                  ),
-            )),
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (context) => MaxWidthContainer(
-              child: FilterScreen(),
-            )),
-      );
-    }
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+          builder: (context) => const LoginPage(
+            title: '',
+          )),
+    );
+    // if (userTOken == null || userTOken == "null") {
+    //   Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(
+    //         builder: (context) => const MaxWidthContainer(
+    //           child: LoginPage(
+    //                 title: '',
+    //               ),
+    //         )),
+    //   );
+    // } else {
+    //   Navigator.pushReplacement(
+    //     context,
+    //     MaterialPageRoute(
+    //         builder: (context) => MaxWidthContainer(
+    //           child: FilterScreen(),
+    //         )),
+    //   );
+    // }
   }
 
   @override
