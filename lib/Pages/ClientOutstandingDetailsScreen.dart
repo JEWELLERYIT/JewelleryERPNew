@@ -137,23 +137,64 @@ class _ClientOutstandingDetailsScreenState
                       ],
                       rows: data.map((client) {
                         return DataRow(cells: [
-                          DataCell(Text(client['vrdate'])),
-                          DataCell(Text(client['vrno'],textAlign: TextAlign.right,)),
-                          DataCell(Text(client['fot'])),
-                          DataCell(Text(client['inwt'],textAlign: TextAlign.right,)),
-                          DataCell(Text(client['outwt'],textAlign: TextAlign.right,)),
-                          DataCell(Text(getBalWt((double.parse(client['inwt']) -
-                                  double.parse(client['outwt'])))
-                              .toString(),textAlign: TextAlign.right,)),
-                          // DataCell(Text(
-                          //     getBalWt(())
-                          //         .toString())),
-                          DataCell(Text(client['inamt'],textAlign: TextAlign.right,)),
-                          DataCell(Text(client['outamt'],textAlign: TextAlign.right,)),
-                          DataCell(Text(getBalAmt(
-                                  (double.parse(client['inamt']) -
-                                      double.parse(client['outamt'])))
-                              .toString(),textAlign: TextAlign.right,)),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(client['vrdate']),
+                            ),
+                          ),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(client['vrno']),
+                            ),
+                          ),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(client['fot']),
+                            ),
+                          ),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(client['inwt']),
+                            ),
+                          ),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(client['outwt']),
+                            ),
+                          ),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                getBalWt((double.parse(client['inwt']) - double.parse(client['outwt']))).toString(),
+                              ),
+                            ),
+                          ),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(client['inamt']),
+                            ),
+                          ),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(client['outamt']),
+                            ),
+                          ),
+                          DataCell(
+                            Container(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                getBalAmt((double.parse(client['inamt']) - double.parse(client['outamt']))).toString(),
+                              ),
+                            ),
+                          ),
                         ]);
                       }).toList(),
                     ),
