@@ -60,7 +60,6 @@ class _ClientOutstandingDetailsScreenState
         await constans.callApi(formData, StaticUrl.erpClientoutstandingUrl);
     Map<String, dynamic> responseData = json.decode(response);
 
-    print("Details Res---- $responseData ");
 
     setState(() {
       data = List<Map<String, dynamic>>.from(responseData['data']);
@@ -73,48 +72,38 @@ class _ClientOutstandingDetailsScreenState
   double balWt = 0;
   double balAmt = 0;
 
-  double getBalWt(double differet) {
+  String getBalWt(double differet) {
     balWt = balWt + differet;
-    return double.parse(NumberFormat('0.000').format(balWt));
+    return balWt.toStringAsFixed(3);
   }
 
-  double getBalAmt(double differet) {
+  String getBalAmt(double differet) {
     balAmt = balAmt + differet;
 
-    return double.parse(NumberFormat('0.000').format(balAmt));
+    return balAmt.toStringAsFixed(3);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      drawer: Drawer(
-        child: SideNavigation(
-          type: 0,
-          setState: () {},
-        ),
-      ),
       backgroundColor: const Color(0xFFF6F6F6),
       appBar: AppBar(
           // backgroundColor: Colors.white,
           // Replace with your color
           leading: IconButton(
-            icon: Image.asset(
-              color: Colors.white,
-              'assets/menu.png', // Replace with your image path
-              height: 20, // Adjust the height as needed
-            ),
-            onPressed: () => _scaffoldKey.currentState?.openDrawer(),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Navigator.of(context).pop(),
           ),
           title: null,
           // Set to null to center the image
           backgroundColor: const Color(0xFF4C5564),
           flexibleSpace: Container(
             margin: const EdgeInsets.only(top: 35),
-            child: const Center(
+            child: Center(
               child: Text(
-                "Client Metal Outstanding",
-                style: TextStyle(
+                widget.keyName,
+                style: const TextStyle(
                     fontSize: 20,
                     color: Colors.white,
                     fontWeight: FontWeight.bold),
@@ -149,22 +138,22 @@ class _ClientOutstandingDetailsScreenState
                       rows: data.map((client) {
                         return DataRow(cells: [
                           DataCell(Text(client['vrdate'])),
-                          DataCell(Text(client['vrno'])),
+                          DataCell(Text(client['vrno'],textAlign: TextAlign.right,)),
                           DataCell(Text(client['fot'])),
-                          DataCell(Text(client['inwt'])),
-                          DataCell(Text(client['outwt'])),
+                          DataCell(Text(client['inwt'],textAlign: TextAlign.right,)),
+                          DataCell(Text(client['outwt'],textAlign: TextAlign.right,)),
                           DataCell(Text(getBalWt((double.parse(client['inwt']) -
                                   double.parse(client['outwt'])))
-                              .toString())),
+                              .toString(),textAlign: TextAlign.right,)),
                           // DataCell(Text(
                           //     getBalWt(())
                           //         .toString())),
-                          DataCell(Text(client['inamt'])),
-                          DataCell(Text(client['outamt'])),
+                          DataCell(Text(client['inamt'],textAlign: TextAlign.right,)),
+                          DataCell(Text(client['outamt'],textAlign: TextAlign.right,)),
                           DataCell(Text(getBalAmt(
                                   (double.parse(client['inamt']) -
                                       double.parse(client['outamt'])))
-                              .toString())),
+                              .toString(),textAlign: TextAlign.right,)),
                         ]);
                       }).toList(),
                     ),

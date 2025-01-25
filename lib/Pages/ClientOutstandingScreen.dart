@@ -200,6 +200,7 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                             padding: EdgeInsets.all(8.0),
                             child: Text(
                               'Fine Bal.',
+                              textAlign: TextAlign.right,
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -208,7 +209,8 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                           child: Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
-                              'AMT Bal.',
+                              'Amt Bal.',
+                              textAlign: TextAlign.right,
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                             ),
                           ),
@@ -253,13 +255,13 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                                   Expanded(
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(client['balwt']),
+                                      child: Text(client['balwt'],textAlign: TextAlign.right,),
                                     ),
                                   ),
                                   Expanded(
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(client['balamt']),
+                                      child: Text(client['balamt'],textAlign: TextAlign.right,),
                                     ),
                                   ),
                                 ],
