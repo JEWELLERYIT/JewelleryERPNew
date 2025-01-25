@@ -20,7 +20,6 @@ class ClientOutstandingScreen extends StatefulWidget {
 }
 
 class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
-  bool _isSearchVisible = false;
   final TextEditingController _searchController = TextEditingController();
 
   bool loader = false;
@@ -120,23 +119,15 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
               ),
             ),
           ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search, color: Colors.white),
-              onPressed: () => {
-                setState(() {
-                  _isSearchVisible = true;
-                })
-              },
-            )
-          ]),
+
+      ),
       body: loader
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
                 children: [
                   Visibility(
-                    visible: _isSearchVisible,
+                    visible: true,
                     child: Card(
                       margin: const EdgeInsets.all(10),
                       elevation: 2,
@@ -155,21 +146,6 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                                   border: InputBorder.none,
                                 ),
                               ),
-                            ),
-                            IconButton(
-                              icon: Image.asset('assets/cross.png',
-                                  // Replace with your image path
-                                  height: 30, // Adjust the height as needed
-                                  width: 30),
-                              onPressed: () {
-                                setState(() {
-                                  _isSearchVisible = false;
-                                  _searchController.text = "";
-                                  // page = 1;
-                                  // _productList.clear();
-                                  // callApi(1);
-                                });
-                              },
                             ),
                           ],
                         ),
