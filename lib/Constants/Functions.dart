@@ -4,6 +4,7 @@ import 'dart:math';
 // import 'package:digicat/Constants/KeyValue.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import "package:http/http.dart" as http;
 
@@ -12,14 +13,25 @@ import 'StaticConstant.dart';
 class Constans {
   late SharedPreferences prefs;
 
-
   String getImageUrl(String image) {
     return "${StaticUrl.baseUrlS}webroot/uploads/products/${StaticData.unique_id}/$image";
   }
+
   String getCompanyImageUrl(String image) {
     return "https://www.digicat.in/webroot/uploads/users/$image";
   }
 
+  String getDate(String dateStr) {
+    try {
+      final DateTime date =
+          DateTime.parse(dateStr); // Parse the input date string
+      final DateFormat formatter =
+          DateFormat('dd-MMM-yyyy'); // Define the output format
+      return formatter.format(date); // Format the date
+    } catch (e) {
+      return 'Invalid Date'; // Handle invalid date inputs
+    }
+  }
 
   void setData(String key, dynamic data) async {
     prefs = await SharedPreferences.getInstance();
@@ -48,9 +60,9 @@ class Constans {
           : 1.0;
     } else if (type == int) {
       return (prefs.getString(key)?.isNotEmpty ?? false)
-          ? int.tryParse(prefs.getString(key) ?? '') ?? (key == StaticConstant.tagDecimalPlaces ? 0 : 1)
+          ? int.tryParse(prefs.getString(key) ?? '') ??
+              (key == StaticConstant.tagDecimalPlaces ? 0 : 1)
           : (key == StaticConstant.tagDecimalPlaces ? 0 : 1);
-
     } else if (type == bool) {
       return prefs.getBool(key) ?? true;
     } else {
@@ -109,7 +121,6 @@ class Constans {
       fontSize: 16.0,
     );
   }
-
 
 //
 //
