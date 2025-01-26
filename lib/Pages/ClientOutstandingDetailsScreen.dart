@@ -80,7 +80,7 @@ class _ClientOutstandingDetailsScreenState
   String getBalAmt(double differet) {
     balAmt = balAmt + differet;
 
-    return balAmt.toStringAsFixed(3);
+    return balAmt.toStringAsFixed(2);
   }
 
   @override
@@ -124,23 +124,23 @@ class _ClientOutstandingDetailsScreenState
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: DataTable(
-                      columns: const [
-                        DataColumn(label: Text('Date')),
-                        DataColumn(label: Text("Vrno")),
-                        DataColumn(label: Text('Type')),
-                        DataColumn(label: Text('inwt')),
-                        DataColumn(label: Text('outwt')),
-                        DataColumn(label: Text('Bal wt')),
-                        DataColumn(label: Text('In Amt')),
-                        DataColumn(label: Text('Out Amt')),
-                        DataColumn(label: Text('Bal Amt')),
+                      columns: [
+                        const DataColumn(label: Text('Date')),
+                        DataColumn(label: Container(width:40,alignment: Alignment.centerRight,child: const Text("Vrno"))),
+                        DataColumn(label: Container(width:50,alignment: Alignment.centerRight,child: const Text('Type'))),
+                        DataColumn(label: Container(width:50,alignment: Alignment.centerRight,child: const Text('inwt'))),
+                        DataColumn(label: Container(width:50,alignment: Alignment.centerRight,child: const Text('outwt'))),
+                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('Bal wt'))),
+                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('In Amt'))),
+                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('Out Amt'))),
+                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('Bal Amt'))),
                       ],
                       rows: data.map((client) {
                         return DataRow(cells: [
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
-                              child: Text(client['vrdate']),
+                              child: Text(constans.getDate(client['vrdate']).toString()),
                             ),
                           ),
                           DataCell(

@@ -73,17 +73,6 @@ class _HomeScreenState extends State<HomeDashBoard> {
     });
   }
 
-  String getDate(String dateStr) {
-    try {
-      final DateTime date =
-          DateTime.parse(dateStr); // Parse the input date string
-      final DateFormat formatter =
-          DateFormat('dd-MMM-yyyy'); // Define the output format
-      return formatter.format(date); // Format the date
-    } catch (e) {
-      return 'Invalid Date'; // Handle invalid date inputs
-    }
-  }
 
   int calculateDaysDifference(String deliveryDateStr) {
     // Parse the delivery date string into a DateTime object
@@ -270,7 +259,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
                         children: [
                           Expanded(
                             child: Text(
-                              'Order Date:\n${getDate(productList[index]['orderdate'])}',
+                              'Order Date:\n${constans.getDate(productList[index]['orderdate'])}',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Color(0xFF4C5564),
@@ -286,7 +275,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
                           ),
                           Expanded(
                             child: Text(
-                              'Delivery Date:\n${getDate(productList[index]['deldate'])}',
+                              'Delivery Date:\n${constans.getDate(productList[index]['deldate'])}',
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 color: Color(0xFF4C5564),
