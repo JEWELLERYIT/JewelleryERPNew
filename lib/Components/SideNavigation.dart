@@ -5,8 +5,11 @@
 // import 'package:digicat/Pages/SavedCatalogScreen.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:jewelleryerp/Pages/FilterScreen.dart';
 import '../Constants/Functions.dart';
+import '../Constants/MenuItem.dart';
 import '../Constants/StaticConstant.dart';
+import '../Pages/ClientOutstandingScreen.dart';
 import '../Pages/LoginPage.dart';
 import '../Pages/MaxWidthContainer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -26,23 +29,22 @@ class _SideNavigation extends State<SideNavigation> {
 
   String userName = "";
   String userEmail = "";
-  int companyId = 0 ;
+  String isAdmin = "";
+  int companyId = 0;
+
   void setUserData() async {
     String? jsonString = await constans.getData(StaticConstant.userData);
     print("User Details ------ $jsonString");
     final Map<String, dynamic> jsonMap = jsonDecode(jsonString!);
 
     setState(() {
-      // userName = jsonMap['username'];
+      isAdmin = jsonMap['isAdmin'];
     });
   }
 
   @override
   void initState() {
     super.initState();
-
-    // String companyLogo = constans.getCompanyImageUrl(userData['image']);
-
     setUserData();
   }
 
@@ -85,9 +87,8 @@ class _SideNavigation extends State<SideNavigation> {
                       ),
                     ),
                   ),
-                      (route) => false, // Remove all previous routes
+                  (route) => false, // Remove all previous routes
                 );
-
               },
             ),
           ],
@@ -110,31 +111,72 @@ class _SideNavigation extends State<SideNavigation> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 10),
                   Center(
                     child: Image.asset(
                       'assets/login_logo.jpeg', // Replace with your image path
                       height: 30, // Adjust the height as needed
                     ),
                   ),
-                  Container(
-                    margin: const EdgeInsets.fromLTRB(20, 10, 0, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          userName,
-                          style: const TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        Text(userEmail)
-                      ],
-                    ),
-                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        userName,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Text(userEmail)
+                    ],
+                  )
                 ],
               ),
-              const SizedBox(height: 10),
+              MenuItem(
+                  img: 'product.png',
+                  title: 'W.I.P.',
+                  line: true,
+                  onTap: () async {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MaxWidthContainer(
+                            child: FilterScreen(),
+                          ),
+                        ));
+                    widget.setState();
+                  }),
 
+              if (isAdmin == "1")
+                MenuItem(
+                    img: 'product.png',
+                    title: 'Client Outstanding',
+                    line: true,
+                    onTap: () async {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MaxWidthContainer(
+                            child: ClientOutstandingScreen(),
+                          ),
+                        ),
+                      );
+                      widget.setState();
+                    }),
+              MenuItem(
+                  img: 'product.png',
+                  title: 'Sales Register',
+                  line: true,
+                  onTap: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MaxWidthContainer(
+                          child: FilterScreen(),
+                        ),
+                      ), // This removes all previous routes
+                    );
+                    widget.setState();
+                  }),
               // The scrollable content
               ElevatedButton(
                 onPressed: () {
