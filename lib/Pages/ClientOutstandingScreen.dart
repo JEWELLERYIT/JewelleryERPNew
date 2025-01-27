@@ -175,7 +175,7 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                           child: Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
-                              'Fine Bal.',
+                              'Fine Balance',
                               textAlign: TextAlign.right,
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                             ),
@@ -185,7 +185,7 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                           child: Padding(
                             padding: EdgeInsets.all(8.0),
                             child: Text(
-                              'Amt Bal.',
+                              'Amt Balance',
                               textAlign: TextAlign.right,
                               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                             ),
@@ -217,13 +217,14 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                           child: Column(
                             children: [
                               Row(
+
                                 children: [
                                   Expanded(
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: Text(
                                         client['clientname'],
-                                        maxLines: 2,
+                                        maxLines: 3,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
@@ -231,13 +232,27 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                                   Expanded(
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(client['balwt'],textAlign: TextAlign.right,),
+                                      child: Text(client['balwt'],textAlign: TextAlign.right,
+                                        style: TextStyle(
+                                          //  fontWeight: FontWeight.bold,
+                                          color: double.parse(client['balwt']) > 0 ? Colors.green : Colors.red,
+
+                                        ),
+                                      ),
                                     ),
                                   ),
                                   Expanded(
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),
-                                      child: Text(client['balamt'],textAlign: TextAlign.right,),
+                                      child: Text(client['balamt'],textAlign: TextAlign.right,
+                                        style: TextStyle(
+                                      //  fontWeight: FontWeight.bold,
+                                          color: double.parse(client['balamt']) > 0 ? Colors.green : Colors.red,
+
+                                        ),
+
+                                        ),
+
                                     ),
                                   ),
                                 ],

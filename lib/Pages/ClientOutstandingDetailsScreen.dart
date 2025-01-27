@@ -123,48 +123,73 @@ class _ClientOutstandingDetailsScreenState
                   ),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
+
                     child: DataTable(
+                      columnSpacing: 0,
+
+
+
+
+
                       columns: [
-                        const DataColumn(label: Text('Date')),
-                        DataColumn(label: Container(width:40,alignment: Alignment.centerRight,child: const Text("Vrno"))),
-                        DataColumn(label: Container(width:50,alignment: Alignment.centerRight,child: const Text('Type'))),
-                        DataColumn(label: Container(width:50,alignment: Alignment.centerRight,child: const Text('inwt'))),
-                        DataColumn(label: Container(width:50,alignment: Alignment.centerRight,child: const Text('outwt'))),
-                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('Bal wt'))),
-                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('In Amt'))),
-                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('Out Amt'))),
-                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('Bal Amt'))),
+                        //const DataColumn(label: Text('Date')),
+                        DataColumn(label: Container(width:110,alignment: Alignment.centerLeft,child: const Text("Date"))),
+                        DataColumn(label: Container(width:60,alignment: Alignment.centerLeft,child: const Text("Vrno"))),
+                        DataColumn(label: Container(width:50,alignment: Alignment.centerLeft,child: const Text('Type'))),
+                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('In-Fine'))),
+                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('Out-Fine'))),
+                        DataColumn(label: Container(width:100,alignment: Alignment.centerRight,child: const Text('Bal-Fine'))),
+                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('In-Amt'))),
+                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('Out-Amt'))),
+                        DataColumn(label: Container(width:100,alignment: Alignment.centerRight,child: const Text('Bal-Amt')  )),
                       ],
                       rows: data.map((client) {
                         return DataRow(cells: [
+
                           DataCell(
                             Container(
-                              alignment: Alignment.centerRight,
+
+
+                             // color: Colors.lightBlueAccent,
+                              alignment: Alignment.centerLeft,
                               child: Text(constans.getDate(client['vrdate']).toString()),
                             ),
                           ),
                           DataCell(
+
                             Container(
-                              alignment: Alignment.centerRight,
+
+
+                              //color: Colors.deepOrangeAccent,
+                              alignment: Alignment.centerLeft,
                               child: Text(client['vrno']),
                             ),
                           ),
                           DataCell(
                             Container(
-                              alignment: Alignment.centerRight,
+                              alignment: Alignment.centerLeft,
+                              //color: Colors.deepOrangeAccent,
                               child: Text(client['fot']),
                             ),
                           ),
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
-                              child: Text(client['inwt']),
+                              child: Text(client['inwt'],
+                                  style: TextStyle(
+                                  color: Colors.orange,
+                        )
+                              ),
                             ),
                           ),
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
-                              child: Text(client['outwt']),
+                              child: Text(client['outwt'],
+                        style: TextStyle(
+                        color: Colors.orange,
+                        )
+                              ),
                             ),
                           ),
                           DataCell(
@@ -172,19 +197,30 @@ class _ClientOutstandingDetailsScreenState
                               alignment: Alignment.centerRight,
                               child: Text(
                                 getBalWt((double.parse(client['inwt']) - double.parse(client['outwt']))).toString(),
+                                  style: TextStyle(
+                                    color: Colors.orange,
+                                  )
                               ),
                             ),
                           ),
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
-                              child: Text(client['inamt']),
+                              child: Text(client['inamt'],
+                            style: TextStyle(
+                            color: Colors.indigo,
+                            )
+                              ),
                             ),
                           ),
                           DataCell(
                             Container(
                               alignment: Alignment.centerRight,
-                              child: Text(client['outamt']),
+                              child: Text(client['outamt'],
+                              style: TextStyle(
+                              color: Colors.indigo,
+                              )
+                              ),
                             ),
                           ),
                           DataCell(
@@ -192,6 +228,9 @@ class _ClientOutstandingDetailsScreenState
                               alignment: Alignment.centerRight,
                               child: Text(
                                 getBalAmt((double.parse(client['inamt']) - double.parse(client['outamt']))).toString(),
+                                  style: TextStyle(
+                                    color: Colors.indigo,
+                                  )
                               ),
                             ),
                           ),

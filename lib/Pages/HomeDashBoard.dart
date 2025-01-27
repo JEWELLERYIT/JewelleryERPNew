@@ -224,7 +224,9 @@ class _HomeScreenState extends State<HomeDashBoard> {
                         child: Text(
                           productList[index]['sku'],
                           style: const TextStyle(
-                            color: Color(0xFFFFC107),
+                            //
+                            color: Colors.deepOrange,
+                            fontWeight: FontWeight.bold,
                             fontSize: 14,
                             fontFamily: 'PoppinsMedium',
                           ),
@@ -367,7 +369,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
                         children: [
                           const Expanded(
                             child: Text(
-                              "User Name",
+                              "Client",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Color(0xFF4C5564),

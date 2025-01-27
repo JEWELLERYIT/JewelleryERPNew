@@ -29,6 +29,16 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
+    signingConfigs {
+        release {
+            storeFile file('/Users/ritesh/Documents/Flutter/JewelleryERP/JewelleryERPNew/JewelleryErp.jks') //E:\Yogesh\JeweleryIt\jewelleryerp\jewelleryerp\JewelleryErp.jks
+            storePassword 'JewelleryErp'
+            keyAlias 'key0'
+            keyPassword 'JewelleryErp'
+        }
+
+    }
+
 
     buildTypes {
         release {
