@@ -28,7 +28,7 @@ class _ClientOutstandingDetailsScreenState
   bool _isSearchVisible = false;
   final TextEditingController _searchController = TextEditingController();
 
-  bool loader = false;
+  bool loader = true;
   Constans constans = Constans();
 
   @override
@@ -60,8 +60,8 @@ class _ClientOutstandingDetailsScreenState
         await constans.callApi(formData, StaticUrl.erpClientoutstandingUrl);
     Map<String, dynamic> responseData = json.decode(response);
 
-
     setState(() {
+      loader = false;
       data = List<Map<String, dynamic>>.from(responseData['data']);
     });
     // }
@@ -82,6 +82,16 @@ class _ClientOutstandingDetailsScreenState
 
     return balAmt.toStringAsFixed(2);
   }
+
+// Common Text Styles
+  TextStyle headerStyle = const TextStyle(
+    color: Colors.white,
+    fontWeight: FontWeight.bold,
+  );
+
+  TextStyle rowStyle = const TextStyle(
+    color: Colors.black,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -113,134 +123,111 @@ class _ClientOutstandingDetailsScreenState
       body: loader
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Header Row
                   Container(
-                    color: Colors.white, // Set the color of the line
-                    height: 1.0, // Set the height (thickness) of the line
-                    width: double
-                        .infinity, // Make the line span the full width of its container
-                  ),
-                  SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-
-                    child: DataTable(
-                      columnSpacing: 0,
-
-
-
-
-
-                      columns: [
-                        //const DataColumn(label: Text('Date')),
-                        DataColumn(label: Container(width:110,alignment: Alignment.centerLeft,child: const Text("Date"))),
-                        DataColumn(label: Container(width:60,alignment: Alignment.centerLeft,child: const Text("Vrno"))),
-                        DataColumn(label: Container(width:50,alignment: Alignment.centerLeft,child: const Text('Type'))),
-                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('In-Fine'))),
-                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('Out-Fine'))),
-                        DataColumn(label: Container(width:100,alignment: Alignment.centerRight,child: const Text('Bal-Fine'))),
-                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('In-Amt'))),
-                        DataColumn(label: Container(width:80,alignment: Alignment.centerRight,child: const Text('Out-Amt'))),
-                        DataColumn(label: Container(width:100,alignment: Alignment.centerRight,child: const Text('Bal-Amt')  )),
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    color: Colors.blueAccent,
+                    child: Row(
+                      children: [
+                        SizedBox(width: 120, child: headerText("Date")),
+                        SizedBox(width: 80, child: headerText("Vrno")),
+                        SizedBox(width: 80, child: headerText("Type")), // Divider added here
+                        SizedBox(width: 100, child: headerText("In-Fine")),
+                        SizedBox(width: 100, child: headerText("Out-Fine")),
+                        SizedBox(width: 100, child: headerText("Bal-Fine")),
+                        SizedBox(width: 100, child: headerText("In-Amt")),
+                        SizedBox(width: 100, child: headerText("Out-Amt")),
+                        SizedBox(width: 100, child: headerText("Bal-Amt")),
                       ],
-                      rows: data.map((client) {
-                        return DataRow(cells: [
-
-                          DataCell(
-                            Container(
-
-
-                             // color: Colors.lightBlueAccent,
-                              alignment: Alignment.centerLeft,
-                              child: Text(constans.getDate(client['vrdate']).toString()),
-                            ),
-                          ),
-                          DataCell(
-
-                            Container(
-
-
-                              //color: Colors.deepOrangeAccent,
-                              alignment: Alignment.centerLeft,
-                              child: Text(client['vrno']),
-                            ),
-                          ),
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerLeft,
-                              //color: Colors.deepOrangeAccent,
-                              child: Text(client['fot']),
-                            ),
-                          ),
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(client['inwt'],
-                                  style: TextStyle(
-                                  color: Colors.orange,
-                        )
-                              ),
-                            ),
-                          ),
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(client['outwt'],
-                        style: TextStyle(
-                        color: Colors.orange,
-                        )
-                              ),
-                            ),
-                          ),
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                getBalWt((double.parse(client['inwt']) - double.parse(client['outwt']))).toString(),
-                                  style: TextStyle(
-                                    color: Colors.orange,
-                                  )
-                              ),
-                            ),
-                          ),
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(client['inamt'],
-                            style: TextStyle(
-                            color: Colors.indigo,
-                            )
-                              ),
-                            ),
-                          ),
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(client['outamt'],
-                              style: TextStyle(
-                              color: Colors.indigo,
-                              )
-                              ),
-                            ),
-                          ),
-                          DataCell(
-                            Container(
-                              alignment: Alignment.centerRight,
-                              child: Text(
-                                getBalAmt((double.parse(client['inamt']) - double.parse(client['outamt']))).toString(),
-                                  style: TextStyle(
-                                    color: Colors.indigo,
-                                  )
-                              ),
-                            ),
-                          ),
-                        ]);
-                      }).toList(),
                     ),
-                  )
+                  ),
+
+                  // Data Rows with Vertical Scrolling
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: data.map((client) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                  bottom:
+                                      BorderSide(color: Colors.grey.shade300)),
+                            ),
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                    width: 120,
+                                    child: dataText(constans
+                                        .getDate(client['vrdate'])
+                                        .toString())),
+                                SizedBox(
+                                    width: 80,
+                                    child: dataText(client['vrno'])),
+                                SizedBox(
+                                    width: 80, child: dataText(client['fot'])),
+                                Container(width: 1, height: 60,color:Colors.grey.shade300),
+                                SizedBox(
+                                    width: 100,
+                                    child: dataText(client['inwt'],
+                                        color: Colors.orange)),
+                                SizedBox(
+                                    width: 100,
+                                    child: dataText(client['outwt'],
+                                        color: Colors.orange)),
+                                SizedBox(
+                                    width: 100,
+                                    child: dataText(
+                                      getBalWt((double.parse(client['inwt']) -
+                                              double.parse(client['outwt'])))
+                                          .toString(),
+                                      color: Colors.orange,
+                                    )),
+                                Container(width: 1, height: 60,color:Colors.grey.shade300),
+                                SizedBox(
+                                    width: 100,
+                                    child: dataText(client['inamt'],
+                                        color: Colors.indigo)),
+                                SizedBox(
+                                    width: 100,
+                                    child: dataText(client['outamt'],
+                                        color: Colors.indigo)),
+                                SizedBox(
+                                    width: 100,
+                                    child: dataText(
+                                      getBalAmt((double.parse(client['inamt']) -
+                                              double.parse(client['outamt'])))
+                                          .toString(),
+                                      color: Colors.indigo,
+                                    )),
+                              ],
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
+    );
+  }
+
+// Helper functions for text widgets
+  Widget headerText(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Text(text, style: headerStyle,textAlign: TextAlign.right),
+    );
+  }
+
+  Widget dataText(String text, {Color? color}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 15),
+      child: Text(text, style: rowStyle.copyWith(color: color ?? Colors.black),textAlign: TextAlign.right,),
     );
   }
 }
