@@ -159,7 +159,7 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                 ),
                 Container(
                   color: Colors.blueAccent,
-                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  padding: const EdgeInsets.symmetric(horizontal: 2.0),
                   // Added padding
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -175,7 +175,6 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            const SizedBox(width: 4),
                             GestureDetector(
                               onTap: () {
                                 if (selectedSort == 0) {
@@ -207,7 +206,7 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                                 });
                               },
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.all(2.0),
                                 child: Image.asset(
                                   selectedSort == 0
                                       ? selectedSortType == 0
@@ -224,64 +223,67 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                           ],
                         ),
                       ),
-                      Expanded(
-                        flex: 1,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            const Text(
-                              'Fine Balance',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                if (selectedSort == 1) {
-                                  setState(() {
-                                    selectedSortType =
-                                    selectedSortType == 0 ? 1 : 0;
-                                  });
-                                } else {
-                                  setState(() {
-                                    selectedSort = 1;
-                                    selectedSortType = 0;
-                                  });
-                                }
-
-                                setState(() {
-                                  if (selectedSortType == 0) {
-                                    data = List.from(data)
-                                      ..sort((a, b) =>
-                                          double.parse(a["balwt"])
-                                              .compareTo(double.parse(
-                                              b["balwt"])));
-                                  } else {
-                                    data = List.from(data)
-                                      ..sort((a, b) =>
-                                          double.parse(b["balwt"])
-                                              .compareTo(double.parse(
-                                              a["balwt"])));
-                                  }
-                                });
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Image.asset(
-                                  selectedSort == 1
-                                      ? selectedSortType == 0
-                                      ? 'assets/ic_up.png'
-                                      : 'assets/ic_down.png'
-                                      : 'assets/ic_up_down.png',
-                                  height: 12,
-                                  width: 12,
+                      Container(
+                        color: Colors.blueAccent,
+                        child: Expanded(
+                          flex: 1,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              const Text(
+                                'Fine Balance',
+                                style: TextStyle(
                                   color: Colors.white,
-                                  colorBlendMode: BlendMode.srcIn,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            )
-                          ],
+                              GestureDetector(
+                                onTap: () {
+                                  if (selectedSort == 1) {
+                                    setState(() {
+                                      selectedSortType =
+                                      selectedSortType == 0 ? 1 : 0;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      selectedSort = 1;
+                                      selectedSortType = 0;
+                                    });
+                                  }
+
+                                  setState(() {
+                                    if (selectedSortType == 0) {
+                                      data = List.from(data)
+                                        ..sort((a, b) =>
+                                            double.parse(a["balwt"])
+                                                .compareTo(double.parse(
+                                                b["balwt"])));
+                                    } else {
+                                      data = List.from(data)
+                                        ..sort((a, b) =>
+                                            double.parse(b["balwt"])
+                                                .compareTo(double.parse(
+                                                a["balwt"])));
+                                    }
+                                  });
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: Image.asset(
+                                    selectedSort == 1
+                                        ? selectedSortType == 0
+                                        ? 'assets/ic_up.png'
+                                        : 'assets/ic_down.png'
+                                        : 'assets/ic_up_down.png',
+                                    height: 12,
+                                    width: 12,
+                                    color: Colors.white,
+                                    colorBlendMode: BlendMode.srcIn,
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       ),
                       Expanded(
@@ -327,7 +329,7 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                                 });
                               },
                               child: Padding(
-                                padding: const EdgeInsets.all(8.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 2,vertical: 10),
                                 child: Image.asset(
                                   selectedSort == 2
                                       ? selectedSortType == 0

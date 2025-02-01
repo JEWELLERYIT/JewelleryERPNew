@@ -133,9 +133,9 @@ class _ClientOutstandingDetailsScreenState
                     color: Colors.blueAccent,
                     child: Row(
                       children: [
-                        SizedBox(width: 120, child: headerText("Date")),
-                        SizedBox(width: 80, child: headerText("Vrno")),
-                        SizedBox(width: 80, child: headerText("Type")), // Divider added here
+                        SizedBox(width: 120, child: headerText("Date",leftAlign: 1)),
+                        SizedBox(width: 80, child: headerText("Vrno",leftAlign: 1)),
+                        SizedBox(width: 80, child: headerText("Type",leftAlign: 1)), // Divider added here
                         SizedBox(width: 100, child: headerText("In-Fine")),
                         SizedBox(width: 100, child: headerText("Out-Fine")),
                         SizedBox(width: 100, child: headerText("Bal-Fine")),
@@ -163,12 +163,12 @@ class _ClientOutstandingDetailsScreenState
                                     width: 120,
                                     child: dataText(constans
                                         .getDate(client['vrdate'])
-                                        .toString())),
+                                        .toString(),leftAlign: 1)),
                                 SizedBox(
                                     width: 80,
-                                    child: dataText(client['vrno'])),
+                                    child: dataText(client['vrno'],leftAlign: 1)),
                                 SizedBox(
-                                    width: 80, child: dataText(client['fot'])),
+                                    width: 80, child: dataText(client['fot'],leftAlign: 1)),
                                 Container(width: 1, height: 60,color:Colors.grey.shade300),
                                 SizedBox(
                                     width: 100,
@@ -217,17 +217,17 @@ class _ClientOutstandingDetailsScreenState
   }
 
 // Helper functions for text widgets
-  Widget headerText(String text) {
+  Widget headerText(String text,{int leftAlign = 2}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: Text(text, style: headerStyle,textAlign: TextAlign.right),
+      child: Text(text, style: headerStyle,textAlign:leftAlign == 1 ?  TextAlign.left: TextAlign.right),
     );
   }
 
-  Widget dataText(String text, {Color? color}) {
+  Widget dataText(String text, {Color? color,int leftAlign = 2}) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12,vertical: 15),
-      child: Text(text, style: rowStyle.copyWith(color: color ?? Colors.black),textAlign: TextAlign.right,),
+      child: Text(text, style: rowStyle.copyWith(color: color ?? Colors.black),textAlign:leftAlign == 1 ?  TextAlign.left: TextAlign.right),
     );
   }
 }
