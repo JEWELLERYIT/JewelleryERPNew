@@ -14,6 +14,8 @@ import '../Pages/LoginPage.dart';
 import '../Pages/MaxWidthContainer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../Pages/SalesResiterScreen.dart';
+
 class SideNavigation extends StatefulWidget {
   final VoidCallback setState;
   final int type;
@@ -171,7 +173,7 @@ class _SideNavigation extends State<SideNavigation> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => MaxWidthContainer(
-                          child: FilterScreen(),
+                          child: SalesResiterScreen(),
                         ),
                       ), // This removes all previous routes
                     );

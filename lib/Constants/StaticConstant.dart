@@ -7,10 +7,7 @@ class StaticUrl {
   static const String baseUrlS = "https://www.digicat.in/";
   static const String loginUrl = "${baseUrlS}webroot/RiteshApi/erp.php";
   static const String erpClientoutstandingUrl = "${baseUrlS}webroot/RiteshApi/erp_clientoutstanding.php";
-  static const String metalUrl = "${baseUrlS}api/webservices/erp_metal.json";
-  static const String itemUrl = "${baseUrlS}api/webservices/erp_item.json";
-  static const String processUrl = "${baseUrlS}api/webservices/erp_process.json";
-  static const String productListUrl = "${baseUrlS}api/webservices/erp_wip_list.json";
+  static const String erpSalesUrl = "${baseUrlS}webroot/RiteshApi/erp_sales.php";
 }
 
 class StaticColor {
