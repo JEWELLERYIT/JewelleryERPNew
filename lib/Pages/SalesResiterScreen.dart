@@ -55,8 +55,6 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
     String response = await constans.callApi(formData, StaticUrl.erpSalesUrl);
     Map<String, dynamic> responseData = json.decode(response);
 
-    print("Client OutStanding: $formData $response");
-
     setState(() {
       mainList = List<Map<String, dynamic>>.from(responseData['data']);
       // data = List<Map<String, dynamic>>.from(responseData['data']);
@@ -71,6 +69,9 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
       List<Map<String, dynamic>> data, String keyName) {
     Map<String, Map<String, dynamic>> result = {};
     Map<String, int> itemCounts = {};
+    data = List.from(data)
+      ..sort((a, b) =>
+          a[keyName].toLowerCase().compareTo(b[keyName].toLowerCase()));
 
     for (var item in data) {
       String itemType = item[keyName];
@@ -167,7 +168,7 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
           margin: const EdgeInsets.only(top: 35),
           child: const Center(
             child: Text(
-              "Client Metal Outstanding",
+              "Sales Analysis",
               style: TextStyle(
                   fontSize: 20,
                   color: Colors.white,
@@ -180,13 +181,14 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               scrollDirection: Axis.vertical, // Enable vertical scrolling
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal, // Enable horizontal scrolling
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SingleChildScrollView(
+                    scrollDirection:
+                        Axis.horizontal, // Enable horizontal scrolling
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 10, right: 10),
                       child: Row(children: [
                         ElevatedButton(
                           onPressed: () {
@@ -306,12 +308,14 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
                         )
                       ]),
                     ),
-                    Container(
+                  ),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
                       width: graphWidth,
-                      padding: const EdgeInsets.all(10),
-                      height: 500,
+                      height: 300,
                       child: SfCartesianChart(
-                        legend: const Legend(isVisible: true),
+                        legend: const Legend(isVisible: false),
                         primaryYAxis: const NumericAxis(
                           interval: 50,
                           edgeLabelPlacement: EdgeLabelPlacement.shift,
@@ -323,13 +327,22 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
                           majorTickLines: MajorTickLines(size: 0),
                           minorTickLines: MinorTickLines(size: 0),
                         ),
-                        primaryXAxis: const CategoryAxis(
+                        primaryXAxis: CategoryAxis(
                           labelRotation: 90,
-                          majorGridLines: MajorGridLines(width: 0),
+                          majorGridLines: const MajorGridLines(width: 0),
                           edgeLabelPlacement: EdgeLabelPlacement.shift,
-                          labelStyle: TextStyle(fontSize: 12),
+                          labelStyle: const TextStyle(
+                            fontSize: 12,
+                          ),
                           arrangeByIndex: true,
                           interval: 1,
+                          axisLabelFormatter: (AxisLabelRenderDetails details) {
+                            String truncatedText = details.text.length > 10
+                                ? '${details.text.substring(0, 10)}...'
+                                : details.text;
+                            return ChartAxisLabel(
+                                truncatedText, details.textStyle);
+                          },
                         ),
                         series: <CartesianSeries<_ChartData, String>>[
                           ColumnSeries<_ChartData, String>(
@@ -345,108 +358,119 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
                         ],
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      color: Colors.blueAccent,
-                      child: Row(
-                        children: [
-                          SizedBox(
-                              width: 200,
-                              child: headerText("Item Name", leftAlign: 1)),
-                          SizedBox(width: 120, child: headerText("PCS")),
-                          SizedBox(width: 120, child: headerText("Gross WT")),
-                          SizedBox(width: 120, child: headerText("Net WT")),
-                          SizedBox(width: 120, child: headerText("Sale Price")),
-                          SizedBox(width: 120, child: headerText("Cost Price")),
-                          SizedBox(width: 120, child: headerText("Diamwt")),
-                          SizedBox(width: 120, child: headerText("Cswt"))
-                        ],
-                      ),
-                    ),
-                    SingleChildScrollView(
-                      child: Column(
-                        children: data.map((client) {
-                          return GestureDetector(
-                            onTap: () {
-                              List<Map<String, dynamic>> filteredList = mainList
-                                  .where((element) => element[selectedItem]
-                                      .toString()
-                                      .contains(client['item'].toString()))
-                                  .toList();
+                  ),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          color: Colors.blueAccent,
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                  width: 100,
+                                  child: headerText("Item Name", leftAlign: 1)),
+                              SizedBox(width: 120, child: headerText("PCS")),
+                              SizedBox(
+                                  width: 120, child: headerText("Gross WT")),
+                              SizedBox(width: 120, child: headerText("Net WT")),
+                              SizedBox(
+                                  width: 120, child: headerText("Sale Price")),
+                              SizedBox(
+                                  width: 120, child: headerText("Cost Price")),
+                              SizedBox(width: 120, child: headerText("Diamwt")),
+                              SizedBox(width: 120, child: headerText("Cswt"))
+                            ],
+                          ),
+                        ),
+                        SingleChildScrollView(
+                          child: Column(
+                            children: data.map((client) {
+                              return GestureDetector(
+                                onTap: () {
+                                  List<Map<String, dynamic>> filteredList =
+                                      mainList
+                                          .where((element) =>
+                                              element[selectedItem]
+                                                  .toString()
+                                                  .contains(client['item']
+                                                      .toString()))
+                                          .toList();
 
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => MaxWidthContainer(
-                                    child: SalesResigterDetailsScreen(
-                                        mainList: filteredList),
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MaxWidthContainer(
+                                        child: SalesResigterDetailsScreen(
+                                            mainList: filteredList),
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                          color: Colors.grey.shade300),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 100,
+                                        child: dataText(
+                                            client['item'].toString(),
+                                            leftAlign: 1),
+                                      ),
+                                      SizedBox(
+                                        width: 120,
+                                        child: dataText(
+                                            client['pcs'].toStringAsFixed(2)),
+                                      ),
+                                      SizedBox(
+                                        width: 120,
+                                        child: dataText(client['grosswt']
+                                            .toStringAsFixed(2)),
+                                      ),
+                                      SizedBox(
+                                        width: 120,
+                                        child: dataText(
+                                            client['netwt'].toStringAsFixed(2)),
+                                      ),
+                                      SizedBox(
+                                        width: 120,
+                                        child: dataText(
+                                            client['saleprice']
+                                                .toStringAsFixed(2)),
+                                      ),
+                                      SizedBox(
+                                        width: 120,
+                                        child: dataText(
+                                            client['costprice']
+                                                .toStringAsFixed(2)),
+                                      ),
+                                      SizedBox(
+                                        width: 120,
+                                        child: dataText(
+                                            client['diamwt'].toStringAsFixed(2)),
+                                      ),
+                                      SizedBox(
+                                        width: 120,
+                                        child: dataText(
+                                            client['cswt'].toStringAsFixed(2)),
+                                      )
+                                    ],
                                   ),
                                 ),
                               );
-                            },
-                            child: Container(
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom:
-                                      BorderSide(color: Colors.grey.shade300),
-                                ),
-                              ),
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 200,
-                                    child: dataText(client['item'].toString(),
-                                        leftAlign: 1),
-                                  ),
-                                  SizedBox(
-                                    width: 120,
-                                    child: dataText(
-                                        client['pcs'].toStringAsFixed(2)),
-                                  ),
-                                  SizedBox(
-                                    width: 120,
-                                    child: dataText(
-                                        client['grosswt'].toStringAsFixed(2)),
-                                  ),
-                                  SizedBox(
-                                    width: 120,
-                                    child: dataText(
-                                        client['netwt'].toStringAsFixed(2),
-                                        color: Colors.orange),
-                                  ),
-                                  SizedBox(
-                                    width: 120,
-                                    child: dataText(
-                                        client['saleprice'].toStringAsFixed(2),
-                                        color: Colors.orange),
-                                  ),
-                                  SizedBox(
-                                    width: 120,
-                                    child: dataText(
-                                        client['costprice'].toStringAsFixed(2),
-                                        color: Colors.orange),
-                                  ),
-                                  SizedBox(
-                                    width: 120,
-                                    child: dataText(
-                                        client['diamwt'].toStringAsFixed(2),
-                                        color: Colors.indigo),
-                                  ),
-                                  SizedBox(
-                                    width: 120,
-                                    child: dataText(
-                                        client['cswt'].toStringAsFixed(2),
-                                        color: Colors.indigo),
-                                  )
-                                ],
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
+                            }).toList(),
+                          ),
+                        )
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
     );

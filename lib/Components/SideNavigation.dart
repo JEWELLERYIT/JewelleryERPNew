@@ -166,7 +166,7 @@ class _SideNavigation extends State<SideNavigation> {
                     }),
               MenuItem(
                   img: 'product.png',
-                  title: 'Sales Register',
+                  title: 'Sales Analysis',
                   line: true,
                   onTap: () async {
                     Navigator.push(
