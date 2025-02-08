@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -66,9 +67,10 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
   }
 
   List<Map<String, dynamic>> aggregateData(
-      List<Map<String, dynamic>> data, String keyName) {
+      List<Map<String, dynamic>> data, String keyName,
+      [bool isPcs = true]) {
     Map<String, Map<String, dynamic>> result = {};
-    Map<String, int> itemCounts = {};
+    Map<String, double> itemCounts = {};
     data = List.from(data)
       ..sort((a, b) =>
           a[keyName].toLowerCase().compareTo(b[keyName].toLowerCase()));
@@ -104,9 +106,13 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
       result[itemType]!["diamwt"] += diamwt;
       result[itemType]!["cswt"] += cswt;
 
-      // String itemType1 = item[keyName];
-      int pcsint = itemCounts[itemType] ?? 0; // Use null-aware operator
-      itemCounts[itemType] = pcsint + pcs; // Now add pcs
+      double pcsint = (itemCounts[itemType] ?? 0.0); // Ensure default value is double
+      if (isPcs) {
+        itemCounts[itemType] = pcsint + pcs.toDouble(); // Convert pcs to double
+      } else {
+        itemCounts[itemType] = pcsint + grosswt; // Already a double
+      }
+
     }
 
     setState(() {
@@ -116,8 +122,9 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
         graphWidth = itemCounts.length * 50;
       }
 
-      chartData =
-          itemCounts.entries.map((e) => _ChartData(e.key, e.value)).toList();
+      chartData = itemCounts.entries
+          .map((e) => _ChartData(e.key, e.value.toInt())) // Convert double to int if needed
+          .toList();
     });
 
     return result.values.toList();
@@ -138,6 +145,7 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
   }
 
   String selectedItem = "item";
+  String selectedValue = "PCS"; // Default selected value
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +184,7 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
             ),
           ),
         ),
+
       ),
       body: loader
           ? const Center(child: CircularProgressIndicator())
@@ -359,6 +368,34 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
                       ),
                     ),
                   ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Radio(
+                        value: "PCS",
+                        groupValue: selectedValue,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedValue = value.toString();
+                            data = aggregateData(mainList, selectedItem, true);
+                          });
+                        },
+                      ),
+                      const Text("PCS"),
+                      const SizedBox(width: 20), // Spacing
+                      Radio(
+                        value: "GrossWt",
+                        groupValue: selectedValue,
+                        onChanged: (value) {
+                          setState(() {
+                            selectedValue = value.toString();
+                            data = aggregateData(mainList, selectedItem, false);
+                          });
+                        },
+                      ),
+                      const Text("GrossWt"),
+                    ],
+                  ),
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Column(
@@ -425,35 +462,33 @@ class _SalesResiterScreenState extends State<SalesResiterScreen> {
                                       ),
                                       SizedBox(
                                         width: 120,
-                                        child: dataText(
-                                            client['pcs'].toStringAsFixed(2)),
+                                        child:
+                                            dataText(client['pcs'].toString()),
                                       ),
                                       SizedBox(
                                         width: 120,
                                         child: dataText(client['grosswt']
+                                            .toStringAsFixed(3)),
+                                      ),
+                                      SizedBox(
+                                        width: 120,
+                                        child: dataText(
+                                            client['netwt'].toStringAsFixed(3)),
+                                      ),
+                                      SizedBox(
+                                        width: 120,
+                                        child: dataText(client['saleprice']
                                             .toStringAsFixed(2)),
                                       ),
                                       SizedBox(
                                         width: 120,
-                                        child: dataText(
-                                            client['netwt'].toStringAsFixed(2)),
+                                        child: dataText(client['costprice']
+                                            .toStringAsFixed(2)),
                                       ),
                                       SizedBox(
                                         width: 120,
-                                        child: dataText(
-                                            client['saleprice']
-                                                .toStringAsFixed(2)),
-                                      ),
-                                      SizedBox(
-                                        width: 120,
-                                        child: dataText(
-                                            client['costprice']
-                                                .toStringAsFixed(2)),
-                                      ),
-                                      SizedBox(
-                                        width: 120,
-                                        child: dataText(
-                                            client['diamwt'].toStringAsFixed(2)),
+                                        child: dataText(client['diamwt']
+                                            .toStringAsFixed(2)),
                                       ),
                                       SizedBox(
                                         width: 120,

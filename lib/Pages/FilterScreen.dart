@@ -179,7 +179,8 @@ class _FilterScreenState extends State<FilterScreen> {
                 })
               },
             )
-          ]),
+          ]
+      ),
       body: loader
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
