@@ -105,18 +105,27 @@ class _ClientOutstandingDetailsScreenState
 
     String list = "";
 
+
+    // <th>Date</th>
+    // <th>VR No</th>
+    // <th>Type</th>
+    // <th>In-Fine</th>
+    // <th>Out-Fine</th>
+    // <th>Bal Fine</th>
+    // <th>In-Amt</th>
+    // <th>Out-Amt</th>
+    // <th>Bal-Amt</th>
     for (var item in data) {
       list += """<tr>
-                <td>${item['id']}</td>
-                <td>${item['companyid']}</td>
                 <td>${constans.getDate(item['vrdate'])}</td>
                 <td>${item['vrno']}</td>
                 <td>${item['fot']}</td>
-                <td>${item['clientname']}</td>
                 <td>${item['inwt']}</td>
                 <td>${item['outwt']}</td>
+                <td>${getBalWt((double.parse(item['inwt']) -double.parse(item['outwt'])))}</td>
                 <td>${item['inamt']}</td>
                 <td>${item['outamt']}</td>
+                <td>${getBalAmt((double.parse(item['inamt']) -double.parse(item['outamt']))).toString()}</td>
             </tr>""";
     }
 
@@ -172,16 +181,15 @@ class _ClientOutstandingDetailsScreenState
     <table class="table">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Company ID</th>
                 <th>Date</th>
                 <th>VR No</th>
-                <th>FOT</th>
-                <th>Client Name</th>
-                <th>In Weight</th>
-                <th>Out Weight</th>
-                <th>In Amount</th>
-                <th>Out Amount</th>
+                <th>Type</th>
+                <th>In-Fine</th>
+                <th>Out-Fine</th>
+                <th>Bal Fine</th>
+                <th>In-Amt</th>
+                <th>Out-Amt</th>
+                <th>Bal-Amt</th>
             </tr>
         </thead>
         <tbody>

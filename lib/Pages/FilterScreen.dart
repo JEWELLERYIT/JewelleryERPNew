@@ -62,7 +62,7 @@ class _FilterScreenState extends State<FilterScreen> {
     String response = await constans.callApi(formData, StaticUrl.loginUrl);
     Map<String, dynamic> responseData = json.decode(response);
 
-    print("Home API: $formData");
+    print("Home API: $response");
 
     setState(() {
       itemList = responseData['item']!;
@@ -270,12 +270,12 @@ class _FilterScreenState extends State<FilterScreen> {
 
   Widget buildCategoryList(String title, List<dynamic> list, String key) {
     // Creating a data map for the PieChart
-    final Map<String, double> dataMap = {
-      for (var item in list)
-        item[key] as String: (item['nos'] is String
-            ? double.tryParse(item['nos']) ?? 0.0
-            : item['nos'] as double),
-    };
+    // final Map<String, double> dataMap = {
+    //   for (var item in list)
+    //     item[key] as String: (item['nos'] is String
+    //         ? double.tryParse(item['nos']) ?? 0.0
+    //         : item['nos'] as double),
+    // };
 
     return Card(
       margin: const EdgeInsets.all(10),
@@ -290,33 +290,6 @@ class _FilterScreenState extends State<FilterScreen> {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ),
-          // dataMap.isNotEmpty
-          //     ? Column(
-          //         children: [
-          //           ColoredBox(
-          //             color: Colors.blue, // Example color.
-          //             child: PieChart(
-          //               dataMap: dataMap,
-          //               animationDuration: const Duration(milliseconds: 800),
-          //               chartType: chartType,
-          //               colorList: colorList,
-          //               chartRadius: math.min(
-          //                   MediaQuery.of(context).size.width / 2.2, 300),
-          //               // centerText: showCenterText ? "TECH" : null,
-          //               legendOptions: LegendOptions(
-          //                 showLegends: showLegends,
-          //                 legendPosition: LegendPosition.right,
-          //               ),
-          //               chartValuesOptions: ChartValuesOptions(
-          //                 showChartValues: showChartValues,
-          //                 showChartValueBackground: true,
-          //                 decimalPlaces: 0,
-          //               ),
-          //             ), // Using the correct dataMap
-          //           ),
-          //         ],
-          //       )
-          //     : const Text(""),
           const Divider(),
           ListView.builder(
             physics: const NeverScrollableScrollPhysics(),
@@ -327,14 +300,28 @@ class _FilterScreenState extends State<FilterScreen> {
               return Column(
                 children: [
                   ListTile(
-                    title: Text(
-                      "${item[key]} (${item['nos']})",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.black54,
-                        //color: Colors.grey,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    title: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "${item[key]} (${item['nos']})",
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.black54,
+                            //color: Colors.grey,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          "Wt : ${double.parse(item['weight']).toStringAsFixed(3)} GRM ",
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black87,
+                            //color: Colors.grey,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        )
+                      ],
                     ),
                     trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                     onTap: () {
