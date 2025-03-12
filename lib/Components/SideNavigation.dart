@@ -10,6 +10,7 @@ import '../Constants/Functions.dart';
 import '../Constants/MenuItem.dart';
 import '../Constants/StaticConstant.dart';
 import '../Pages/ClientOutstandingScreen.dart';
+import '../Pages/DownloadsScreen.dart';
 import '../Pages/LoginPage.dart';
 import '../Pages/MaxWidthContainer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -36,11 +37,11 @@ class _SideNavigation extends State<SideNavigation> {
 
   void setUserData() async {
     String? jsonString = await constans.getData(StaticConstant.userData);
-    print("User Details ------ $jsonString");
     final Map<String, dynamic> jsonMap = jsonDecode(jsonString!);
 
     setState(() {
       isAdmin = jsonMap['isAdmin'];
+      print("User Details ------ ${jsonMap['isAdmin']}");
     });
   }
 
@@ -164,21 +165,38 @@ class _SideNavigation extends State<SideNavigation> {
                       );
                       widget.setState();
                     }),
-              MenuItem(
-                  img: 'product.png',
-                  title: 'Sales Analysis',
-                  line: true,
-                  onTap: () async {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => MaxWidthContainer(
-                          child: SalesResiterScreen(),
+              if (isAdmin == "0")
+                MenuItem(
+                    img: 'product.png',
+                    title: 'Downloads',
+                    line: true,
+                    onTap: () async {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MaxWidthContainer(
+                            child: DownloadsScreen(),
+                          ),
                         ),
-                      ), // This removes all previous routes
-                    );
-                    widget.setState();
-                  }),
+                      );
+                      widget.setState();
+                    }),
+              if (isAdmin == "1")
+                MenuItem(
+                    img: 'product.png',
+                    title: 'Sales Analysis',
+                    line: true,
+                    onTap: () async {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MaxWidthContainer(
+                            child: SalesResiterScreen(),
+                          ),
+                        ), // This removes all previous routes
+                      );
+                      widget.setState();
+                    }),
               // The scrollable content
               ElevatedButton(
                 onPressed: () {

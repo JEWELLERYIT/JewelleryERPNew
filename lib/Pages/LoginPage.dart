@@ -126,7 +126,7 @@ class _LoginPageState extends State<LoginPage>
         });
         Map<String, dynamic> responseData = json.decode(response);
 
-        Map<String, dynamic> jsonObject = {};
+        print("responseData -- $responseData");
 
         if (responseData['response']) {
           //   // Add data to the JSON object
