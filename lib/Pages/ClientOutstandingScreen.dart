@@ -58,6 +58,13 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
       'group': "1",
     };
 
+    print("userData --------- ${userData}");
+
+    if (userData['isAdmin'] == "0") {
+      // formData[""] = "";
+      formData["clouduserid"] = userData['username'];
+    }
+
     String response =
         await constans.callApi(formData, StaticUrl.erpClientoutstandingUrl);
     Map<String, dynamic> responseData = json.decode(response);
@@ -98,17 +105,20 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
         selectedSortType = 0;
       }
 
-      data = List.from(data)..sort((a, b) {
-        var valueA, valueB;
-        if (columnIndex == 0) {
-          valueA = a["clientname"].toLowerCase();
-          valueB = b["clientname"].toLowerCase();
-        } else {
-          valueA = double.parse(a[columnIndex == 1 ? "balwt" : "balamt"]);
-          valueB = double.parse(b[columnIndex == 1 ? "balwt" : "balamt"]);
-        }
-        return selectedSortType == 0 ? valueA.compareTo(valueB) : valueB.compareTo(valueA);
-      });
+      data = List.from(data)
+        ..sort((a, b) {
+          var valueA, valueB;
+          if (columnIndex == 0) {
+            valueA = a["clientname"].toLowerCase();
+            valueB = b["clientname"].toLowerCase();
+          } else {
+            valueA = double.parse(a[columnIndex == 1 ? "balwt" : "balamt"]);
+            valueB = double.parse(b[columnIndex == 1 ? "balwt" : "balamt"]);
+          }
+          return selectedSortType == 0
+              ? valueA.compareTo(valueB)
+              : valueB.compareTo(valueA);
+        });
     });
   }
 
@@ -182,7 +192,8 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                 ),
                 Container(
                   color: Colors.blueAccent,
-                  padding: const EdgeInsets.symmetric(horizontal: 2.0,vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 2.0, vertical: 10),
                   // Added padding
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -193,14 +204,18 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                           children: [
                             const Text(
                               'Client Name',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(width: 2),
                             GestureDetector(
                               onTap: () => _sortData(0),
                               child: Image.asset(
                                 selectedSort == 0
-                                    ? selectedSortType == 0 ? 'assets/ic_up.png' : 'assets/ic_down.png'
+                                    ? selectedSortType == 0
+                                        ? 'assets/ic_up.png'
+                                        : 'assets/ic_down.png'
                                     : 'assets/ic_up_down.png',
                                 height: 12,
                                 width: 12,
@@ -217,14 +232,18 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                           children: [
                             const Text(
                               'Fine Balance',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(width: 2),
                             GestureDetector(
                               onTap: () => _sortData(1),
                               child: Image.asset(
                                 selectedSort == 1
-                                    ? selectedSortType == 0 ? 'assets/ic_up.png' : 'assets/ic_down.png'
+                                    ? selectedSortType == 0
+                                        ? 'assets/ic_up.png'
+                                        : 'assets/ic_down.png'
                                     : 'assets/ic_up_down.png',
                                 height: 12,
                                 width: 12,
@@ -241,14 +260,18 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                           children: [
                             const Text(
                               'Amt Balance',
-                              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(width: 2),
                             GestureDetector(
                               onTap: () => _sortData(2),
                               child: Image.asset(
                                 selectedSort == 2
-                                    ? selectedSortType == 0 ? 'assets/ic_up.png' : 'assets/ic_down.png'
+                                    ? selectedSortType == 0
+                                        ? 'assets/ic_up.png'
+                                        : 'assets/ic_down.png'
                                     : 'assets/ic_up_down.png',
                                 height: 12,
                                 width: 12,

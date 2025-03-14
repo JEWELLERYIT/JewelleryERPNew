@@ -149,22 +149,21 @@ class _SideNavigation extends State<SideNavigation> {
                     widget.setState();
                   }),
 
-              if (isAdmin == "1")
-                MenuItem(
-                    img: 'product.png',
-                    title: 'Client Outstanding',
-                    line: true,
-                    onTap: () async {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MaxWidthContainer(
-                            child: ClientOutstandingScreen(),
-                          ),
+              MenuItem(
+                  img: 'product.png',
+                  title: 'Client Outstanding',
+                  line: true,
+                  onTap: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MaxWidthContainer(
+                          child: ClientOutstandingScreen(),
                         ),
-                      );
-                      widget.setState();
-                    }),
+                      ),
+                    );
+                    widget.setState();
+                  }),
               if (isAdmin == "0")
                 MenuItem(
                     img: 'product.png',
