@@ -396,6 +396,43 @@ class _HomeScreenState extends State<HomeDashBoard> {
                           ),
                         ],
                       ),
+                      Container(
+                        width: double.infinity,
+                        height: 1,
+                        color: const Color(0xFF4C5564),
+                      ),
+                      Row(
+                        children: [
+                           Expanded(
+                            child: Text(
+                              "Job No.\n${productList[index]['jobno']}",
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF4C5564),
+                                fontSize: 10,
+                                fontFamily: 'PoppinsMedium',
+                              ),
+                            ),
+                          ),
+                          Container(
+                            width: 1,
+                            height: 35,
+                            color: const Color(0xFF4C5564),
+                          ),
+                          Expanded(
+                            child: Text( //isAdmin
+                              "Gross WT\n${productList[index]['grosswt']} G",
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Color(0xFF4C5564),
+                                fontSize: 10,
+                                fontFamily: 'PoppinsMedium',
+                              ),
+                            ),
+                          ),
+                        ],
+                      )
+
                     ],
                   ),
                 ),

@@ -100,6 +100,9 @@ class _ClientOutstandingDetailsScreenState
   );
 
   Future<int> createCatalogHTML(BuildContext context, String clientName) async {
+
+    balWt = 0;
+    balAmt = 0;
     String? generatedPdfFilePath;
     String currentDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
@@ -258,10 +261,8 @@ class _ClientOutstandingDetailsScreenState
             IconButton(
               icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
               onPressed: () => {
-                setState(() {
-                  // _isSearchVisible = true;
-                  createCatalogHTML(context, widget.keyName);
-                })
+
+              createCatalogHTML(context, widget.keyName)
               },
             )
           ]),
