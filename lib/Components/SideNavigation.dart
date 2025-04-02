@@ -16,6 +16,7 @@ import '../Pages/MaxWidthContainer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../Pages/SalesResiterScreen.dart';
+import '../Pages/StoneOutStandingScreen.dart';
 
 class SideNavigation extends StatefulWidget {
   final VoidCallback setState;
@@ -196,6 +197,22 @@ class _SideNavigation extends State<SideNavigation> {
                       );
                       widget.setState();
                     }),
+
+              MenuItem(
+                  img: 'product.png',
+                  title: 'Stone Outstanding',
+                  line: true,
+                  onTap: () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MaxWidthContainer(
+                          child: StoneOutStandingScreen(),
+                        ),
+                      ), // This removes all previous routes
+                    );
+                    widget.setState();
+                  }),
               // The scrollable content
               ElevatedButton(
                 onPressed: () {

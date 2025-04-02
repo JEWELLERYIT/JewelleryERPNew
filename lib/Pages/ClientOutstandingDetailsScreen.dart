@@ -1,21 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:jewelleryerp/Pages/HomeDashBoard.dart';
 import 'package:path_provider/path_provider.dart';
-import '../Components/SideNavigation.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-
 import '../Constants/Functions.dart';
 import '../Constants/StaticConstant.dart';
 import 'MaxWidthContainer.dart';
-import 'package:pie_chart/pie_chart.dart';
 import 'package:flutter_native_html_to_pdf/flutter_native_html_to_pdf.dart';
-
 import 'PDFScreen.dart';
 
 class ClientOutstandingDetailsScreen extends StatefulWidget {

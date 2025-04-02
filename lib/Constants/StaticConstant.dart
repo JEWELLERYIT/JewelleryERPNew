@@ -2,12 +2,13 @@ import 'dart:ui';
 
 import '../Components/Metal.dart';
 
-
+// https://www.digicat.in/webroot/RiteshApi/erp_clientstoneoutstanding.php
 class StaticUrl {
   static const String baseUrlS = "https://www.digicat.in/";
   static const String loginUrl = "${baseUrlS}webroot/RiteshApi/erp.php";
   static const String erpClientoutstandingUrl = "${baseUrlS}webroot/RiteshApi/erp_clientoutstanding.php";
   static const String erpSalesUrl = "${baseUrlS}webroot/RiteshApi/erp_sales.php";
+  static const String erp_clientstoneoutstanding = "${baseUrlS}webroot/RiteshApi/erp_clientstoneoutstanding.php";
 }
 
 class StaticColor {
