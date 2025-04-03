@@ -92,14 +92,12 @@ class _ClientOutstandingDetailsScreenState
   );
 
   Future<int> createCatalogHTML(BuildContext context, String clientName) async {
-
     balWt = 0;
     balAmt = 0;
     String? generatedPdfFilePath;
     String currentDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
     String list = "";
-
 
     // <th>Date</th>
     // <th>VR No</th>
@@ -117,10 +115,10 @@ class _ClientOutstandingDetailsScreenState
                 <td>${item['fot']}</td>
                 <td>${item['inwt']}</td>
                 <td>${item['outwt']}</td>
-                <td>${getBalWt((double.parse(item['inwt']) -double.parse(item['outwt'])))}</td>
+                <td>${getBalWt((double.parse(item['inwt']) - double.parse(item['outwt'])))}</td>
                 <td>${item['inamt']}</td>
                 <td>${item['outamt']}</td>
-                <td>${getBalAmt((double.parse(item['inamt']) -double.parse(item['outamt']))).toString()}</td>
+                <td>${getBalAmt((double.parse(item['inamt']) - double.parse(item['outamt']))).toString()}</td>
             </tr>""";
     }
 
@@ -227,37 +225,44 @@ class _ClientOutstandingDetailsScreenState
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: const Color(0xFFF6F6F6),
-      appBar: AppBar(
-          // backgroundColor: Colors.white,
-          // Replace with your color
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          title: null,
-          // Set to null to center the image
-          backgroundColor: const Color(0xFF4C5564),
-          flexibleSpace: Container(
-            margin: const EdgeInsets.only(top: 35),
-            child: Center(
-              child: Text(
-                widget.keyName,
-                style: const TextStyle(
-                    fontSize: 20,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold),
+      // appBar: AppBar(
+      //     ,
+      //     actions: [
+      //       IconButton(
+      //         icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+      //         onPressed: () => {
+      //
+      //         createCatalogHTML(context, widget.keyName)
+      //         },
+      //       )
+      //     ]),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60), // Adjust the height if needed
+        child: AppBar(
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: Text(
+              widget.keyName,
+              style: const TextStyle(
+                fontSize: 20,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
-              onPressed: () => {
+            centerTitle: true,
+            backgroundColor: const Color(0xFF4C5564),
+            elevation: 0,
+            // Optional: Removes shadow for a cleaner look
 
-              createCatalogHTML(context, widget.keyName)
-              },
-            )
-          ]),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+                onPressed: () => {createCatalogHTML(context, widget.keyName)},
+              )
+            ]),
+      ),
       body: loader
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

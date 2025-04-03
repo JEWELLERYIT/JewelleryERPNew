@@ -120,7 +120,6 @@ class _StoneOutStandingDetailsState extends State<StoneOutStandingDetails> {
               // ✅ Removed Expanded, using only SingleChildScrollView
               child: Column(
                 children: [
-
                   Container(
                     color: Colors.white,
                     child: const Card(
@@ -131,27 +130,25 @@ class _StoneOutStandingDetailsState extends State<StoneOutStandingDetails> {
                         padding: EdgeInsets.all(20),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment:
-                          MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
                               child: Row(
-                                crossAxisAlignment:
-                                CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
-                                MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     "Stone Packet",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
                                     softWrap: true,
                                   ),
                                   SizedBox(height: 20),
                                   Text(
                                     "Bal. Cts",
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold),
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
                                     softWrap: true,
                                   ),
                                 ],
