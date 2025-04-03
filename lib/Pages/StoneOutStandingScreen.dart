@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:jewelleryerp/Pages/HomeDashBoard.dart';
+import 'package:jewelleryerp/Pages/StoneOutStandingDetails.dart';
 import '../Components/SideNavigation.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -166,16 +166,16 @@ class _StoneOutStandingScreenState extends State<StoneOutStandingScreen> {
                                   //     "client['clientname'] ${client['clientname']}");
                                   //
                                   // // onRowTap(client); // Handle row tap
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(
-                                  //     builder: (context) => MaxWidthContainer(
-                                  //       child: ClientOutstandingDetailsScreen(
-                                  //         keyName: client['clientname'],
-                                  //       ),
-                                  //     ),
-                                  //   ),
-                                  // );
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => MaxWidthContainer(
+                                        child: StoneOutStandingDetails(
+                                          keyName: client['clientname'],
+                                        ),
+                                      ),
+                                    ),
+                                  );
                                 },
                                 child: Container(
                                     color: Colors.white,
