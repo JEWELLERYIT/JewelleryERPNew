@@ -81,7 +81,7 @@ class _StoneOutStandingScreenState extends State<StoneOutStandingScreen> {
     setState(() {
       data = mainList.where((client) {
         // Check if clientname contains the pattern (case-insensitive)
-        return client['clientnameaa']
+        return client['clientname']
             .toString()
             .toLowerCase()
             .contains(value.toLowerCase());
