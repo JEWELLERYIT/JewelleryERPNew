@@ -57,6 +57,11 @@ class _StoneOutStandingScreenState extends State<StoneOutStandingScreen> {
       'clients': "1",
     };
 
+
+    if (userData['isAdmin'] == "0") {
+      formData["clouduserid"] = userData['username'];
+    }
+
     String response =
         await constans.callApi(formData, StaticUrl.erp_clientstoneoutstanding);
 
@@ -216,7 +221,7 @@ class _StoneOutStandingScreenState extends State<StoneOutStandingScreen> {
                                               ),
                                             ),
                                             Text(
-                                              "Wight\n${double.parse(client['balwt']).toStringAsFixed(3)} Cts",
+                                              "Weight\n${double.parse(client['balwt']).toStringAsFixed(3)} Cts",
                                               textAlign: TextAlign.center,
                                               // Center the text inside the widget
                                               style: const TextStyle(
