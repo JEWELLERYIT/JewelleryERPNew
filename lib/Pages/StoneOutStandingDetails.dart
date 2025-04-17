@@ -9,6 +9,7 @@ import '../Constants/StaticConstant.dart';
 import 'MaxWidthContainer.dart';
 import 'package:flutter_native_html_to_pdf/flutter_native_html_to_pdf.dart';
 import 'PDFScreen.dart';
+import 'package:jewelleryerp/Pages/StoneOutstandingDetailsSecondScreen.dart';
 
 class StoneOutStandingDetails extends StatefulWidget {
   String keyName = "";
@@ -164,16 +165,16 @@ class _StoneOutStandingDetailsState extends State<StoneOutStandingDetails> {
                       children: data.map((client) {
                         return GestureDetector(
                           onTap: () {
-                            // Navigator.push(
-                            //   context,
-                            //   MaterialPageRoute(
-                            //     builder: (context) => MaxWidthContainer(
-                            //       child: StoneOutStandingDetails(
-                            //         keyName: client['clientname'],
-                            //       ),
-                            //     ),
-                            //   ),
-                            // );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => MaxWidthContainer(
+                                  child: StoneOutstandingDetailsSecondScreen(
+                                    keyName:widget.keyName, ssku:client['ssku']
+                                  ),
+                                ),
+                              ),
+                            );
                           },
                           child: Container(
                             color: Colors.white,
