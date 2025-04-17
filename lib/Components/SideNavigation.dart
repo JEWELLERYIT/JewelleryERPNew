@@ -9,7 +9,7 @@ import 'package:jewelleryerp/Pages/FilterScreen.dart';
 import '../Constants/Functions.dart';
 import '../Constants/MenuItem.dart';
 import '../Constants/StaticConstant.dart';
-import '../Pages/ClientOutstandingScreen.dart';
+import '../Pages/MetalOutstandingScreen.dart';
 import '../Pages/DownloadsScreen.dart';
 import '../Pages/LoginPage.dart';
 import '../Pages/MaxWidthContainer.dart';
@@ -152,14 +152,14 @@ class _SideNavigation extends State<SideNavigation> {
 
               MenuItem(
                   img: 'product.png',
-                  title: 'Client Outstanding',
+                  title: 'Metal Outstanding',
                   line: true,
                   onTap: () async {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => MaxWidthContainer(
-                          child: ClientOutstandingScreen(),
+                          child: MetalOutstandingScreen(),
                         ),
                       ),
                     );

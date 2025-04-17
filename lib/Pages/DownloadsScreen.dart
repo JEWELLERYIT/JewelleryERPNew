@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Constants/Functions.dart';
 import '../Constants/StaticConstant.dart';
-import 'ClientOutstandingDetailsScreen.dart';
+import 'MetalOutstandingDetailsScreen.dart';
 import 'MaxWidthContainer.dart';
 import 'package:pie_chart/pie_chart.dart';
 

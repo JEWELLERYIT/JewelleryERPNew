@@ -9,17 +9,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../Constants/Functions.dart';
 import '../Constants/StaticConstant.dart';
-import 'ClientOutstandingDetailsScreen.dart';
+import 'MetalOutstandingDetailsScreen.dart';
 import 'MaxWidthContainer.dart';
 import 'package:pie_chart/pie_chart.dart';
 
-class ClientOutstandingScreen extends StatefulWidget {
+class MetalOutstandingScreen extends StatefulWidget {
   @override
-  _ClientOutstandingScreenState createState() =>
-      _ClientOutstandingScreenState();
+  _MetalOutstandingScreenState createState() =>
+      _MetalOutstandingScreenState();
 }
 
-class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
+class _MetalOutstandingScreenState extends State<MetalOutstandingScreen> {
   int selectedSort = 0;
   int selectedSortType = 0;
 
@@ -151,7 +151,7 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
           margin: const EdgeInsets.only(top: 35),
           child: const Center(
             child: Text(
-              "Client Metal Outstanding",
+              "Metal Outstanding",
               style: TextStyle(
                   fontSize: 20,
                   color: Colors.white,
@@ -516,7 +516,7 @@ class _ClientOutstandingScreenState extends State<ClientOutstandingScreen> {
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => MaxWidthContainer(
-                                        child: ClientOutstandingDetailsScreen(
+                                        child: MetalOutstandingDetailsScreen(
                                           keyName: client['clientname'],
                                         ),
                                       ),

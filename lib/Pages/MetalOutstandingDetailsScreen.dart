@@ -10,18 +10,18 @@ import 'MaxWidthContainer.dart';
 import 'package:flutter_native_html_to_pdf/flutter_native_html_to_pdf.dart';
 import 'PDFScreen.dart';
 
-class ClientOutstandingDetailsScreen extends StatefulWidget {
+class MetalOutstandingDetailsScreen extends StatefulWidget {
   String keyName = "";
 
-  ClientOutstandingDetailsScreen({required this.keyName});
+  MetalOutstandingDetailsScreen({required this.keyName});
 
   @override
-  _ClientOutstandingDetailsScreenState createState() =>
-      _ClientOutstandingDetailsScreenState();
+  _MetalOutstandingDetailsScreenState createState() =>
+      _MetalOutstandingDetailsScreenState();
 }
 
-class _ClientOutstandingDetailsScreenState
-    extends State<ClientOutstandingDetailsScreen> {
+class _MetalOutstandingDetailsScreenState
+    extends State<MetalOutstandingDetailsScreen> {
   final _flutterNativeHtmlToPdfPlugin = FlutterNativeHtmlToPdf();
 
   bool loader = true;
