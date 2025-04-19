@@ -1,64 +1,109 @@
 import 'package:flutter/material.dart';
 
-class MenuItem extends StatefulWidget {
-  final String img; // Image path
-  final String title; // Title
-  final bool line; // Whether to display the line
-  final VoidCallback onTap; // Whether to display the line
+/// Model for SubMenu item
+class SubMenuItem {
+  final String name;
+  final VoidCallback onTap;
 
-  // Constructor accepting img, title, and line
-  MenuItem(
-      {required this.img,
-      required this.title,
-      this.line = true, // Default value for line is true
-      required this.onTap});
+  SubMenuItem({required this.name, required this.onTap});
+}
+
+/// MenuItem widget with optional submenu support
+class MenuItem extends StatefulWidget {
+  final String img;
+  final String title;
+  final bool line;
+  final VoidCallback onTap;
+  final List<SubMenuItem>? subMenus;
+
+  MenuItem({
+    required this.img,
+    required this.title,
+    this.line = true,
+    required this.onTap,
+    this.subMenus,
+  });
 
   @override
   _MenuItemState createState() => _MenuItemState();
 }
 
 class _MenuItemState extends State<MenuItem> {
+  bool _showSubMenu = false;
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: widget.onTap,
-      child: Column(
-        children: [
-          Padding(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: () {
+            widget.onTap();
+            if (widget.subMenus != null && widget.subMenus!.isNotEmpty) {
+              setState(() {
+                _showSubMenu = !_showSubMenu;
+              });
+            }
+          },
+          child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12.0),
             child: Row(
               children: [
                 Image.asset(
-                  "assets/${widget.img}", // Using img from parent
-                  height: 20, // Adjust the height as needed
+                  "assets/${widget.img}",
+                  height: 20,
                 ),
                 const SizedBox(width: 10),
                 Text(
-                  widget.title, // Using title from parent
+                  widget.title,
                   style: const TextStyle(fontSize: 16),
                 ),
+                if (widget.subMenus != null && widget.subMenus!.isNotEmpty)
+                  Icon(
+                    _showSubMenu
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                  ),
               ],
             ),
           ),
-          widget.line // Show line if 'line' is true
-              ? Container(
-                  height: 2, // Height of the line
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.grey, // Start color
-                        Colors.white, // End color
-                      ],
-                      begin: Alignment.centerLeft, // Gradient start
-                      end: Alignment.centerRight, // Gradient end
+        ),
+
+        if (_showSubMenu && widget.subMenus != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 50),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: widget.subMenus!
+                  .map(
+                    (submenu) => GestureDetector(
+                  onTap: submenu.onTap,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6.0),
+                    child: Text(
+                      submenu.name,
+                      style: const TextStyle(fontSize: 14,color: Colors.black),
                     ),
                   ),
-                )
-              : Container(), // Empty container when line is false
-        ],
-      ),
+                ),
+              )
+                  .toList(),
+            ),
+          ),
+
+        if (widget.line)
+          Container(
+            height: 2,
+            margin: const EdgeInsets.symmetric(vertical: 10),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.grey, Colors.white],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

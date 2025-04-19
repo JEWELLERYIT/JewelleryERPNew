@@ -15,6 +15,7 @@ import '../Pages/LoginPage.dart';
 import '../Pages/MaxWidthContainer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../Pages/OrderScreen.dart';
 import '../Pages/SalesResiterScreen.dart';
 import '../Pages/StoneOutStandingScreen.dart';
 
@@ -197,7 +198,6 @@ class _SideNavigation extends State<SideNavigation> {
                       );
                       widget.setState();
                     }),
-
               MenuItem(
                   img: 'product.png',
                   title: 'Stone Outstanding',
@@ -213,6 +213,43 @@ class _SideNavigation extends State<SideNavigation> {
                     );
                     widget.setState();
                   }),
+              MenuItem(
+                img: 'product.png',
+                title: 'Order',
+                line: true,
+                onTap: () async {
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => MaxWidthContainer(
+                  //       child: StoneOutStandingScreen(),
+                  //     ),
+                  //   ), // This removes all previous routes
+                  // );
+                  // widget.setState();
+                },
+                subMenus: [
+                  SubMenuItem(
+                    name: 'Create Order',
+                    onTap: () => {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => MaxWidthContainer(
+                            child: OrderScreen(),
+                          ),
+                        ), // This removes all previous routes
+                      ),
+                      widget.setState()
+                    },
+                  ),
+                  SubMenuItem(
+                    name: 'History',
+                    onTap: () => print('Security clicked'),
+                  ),
+                ],
+              ),
+
               // The scrollable content
               ElevatedButton(
                 onPressed: () {
