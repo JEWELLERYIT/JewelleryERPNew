@@ -48,17 +48,24 @@ class _OrderScreenState extends State<OrderScreen> {
           key: _formKey,
           child: Column(
             children: [
+              buildInputCard("Order Ref", Icons.account_box, itemController),
+              buildInputCard("Plating", Icons.widgets, itemController),
+              buildInputCard("Rhodium", Icons.where_to_vote_outlined, rhodiumController),
+              buildInputCard("Findings", Icons.width_full, itemController),
+              buildInputCard("Pcs", Icons.width_normal, itemController),
+              buildInputCard("Gross wt", Icons.width_wide_sharp, itemController),
+
               buildInputCard("Item", Icons.widgets, itemController),
               buildInputCard("Metal", Icons.precision_manufacturing, metalController),
               buildInputCard("Color", Icons.palette, colorController),
+              buildInputCard("Size", Icons.account_tree, colorController),
               buildInputCard("Enamel Color", Icons.brush, enamelColorController),
-              buildInputCard("Rhodium", Icons.invert_colors, rhodiumController),
-              buildInputCard("Findings", Icons.extension, findingsController),
-
+              buildCommentBox("Stone description", itemController),
+              buildCommentBox("Item description", itemController),
               sectionTitle("Images"),
-              buildImagePicker("Gallery Image", imageFromGallery, () => pickImage(ImageSource.gallery, false)),
+              buildImagePicker("Image 1", imageFromGallery, () => pickImage(ImageSource.gallery, false)),
               const SizedBox(height: 16),
-              buildImagePicker("Camera Image", imageFromCamera, () => pickImage(ImageSource.camera, true)),
+              buildImagePicker("Image 2", imageFromCamera, () => pickImage(ImageSource.camera, true)),
 
               const SizedBox(height: 30),
 
