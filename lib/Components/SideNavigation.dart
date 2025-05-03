@@ -15,6 +15,7 @@ import '../Pages/LoginPage.dart';
 import '../Pages/MaxWidthContainer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../Pages/OrderHistoryScreen.dart';
 import '../Pages/OrderScreen.dart';
 import '../Pages/SalesResiterScreen.dart';
 import '../Pages/StoneOutStandingScreen.dart';
@@ -243,9 +244,19 @@ class _SideNavigation extends State<SideNavigation> {
                       widget.setState()
                     },
                   ),
-                  SubMenuItem(
+                   SubMenuItem(
                     name: 'History',
-                    onTap: () => print('Security clicked'),
+                    onTap: () =>{
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const MaxWidthContainer(
+                            child: Orderhistoryscreen(),
+                          ),
+                        ), // This removes all previous routes
+                      ),
+                      widget.setState()
+                    },
                   ),
                 ],
               ),
