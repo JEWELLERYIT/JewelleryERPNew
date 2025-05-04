@@ -10,6 +10,10 @@ import '../Constants/Functions.dart';
 import '../Constants/StaticConstant.dart';
 
 class OrderScreen extends StatefulWidget {
+  final Map<String, dynamic> data; // accept JSON here
+
+  const OrderScreen({Key? key, required this.data}) : super(key: key);
+
   @override
   _OrderScreenState createState() => _OrderScreenState();
 }
@@ -17,9 +21,43 @@ class OrderScreen extends StatefulWidget {
 class _OrderScreenState extends State<OrderScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  String image1Url = "";
+  String image2Url = "";
+
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+
+    final data = widget.data;
+
+    try {
+      orderRefController.text = data['orderref']?.toString() ?? '';
+      itemController.text = data['item']?.toString() ?? '';
+      metalController.text = data['metal']?.toString() ?? '';
+      colorController.text = data['color']?.toString() ?? '';
+      sizeController.text = data['size']?.toString() ?? '';
+      refSKUController.text = data['refsku']?.toString() ?? '';
+      cRefController.text = data['cref']?.toString() ?? '';
+      platingController.text =
+          data['plating']?.toString() ?? ''; // assuming 'plating' key
+      rhodiumController.text = data['rhodium']?.toString() ?? '';
+      findingsController.text = data['findings']?.toString() ?? '';
+      pcsController.text = data['pcs']?.toString() ?? '';
+      grossWTController.text = data['grosswt']?.toString() ?? '';
+      stoneDescriptionController.text = data['stonedesc']?.toString() ?? '';
+      itemDescriptionController.text = data['itemdesc']?.toString() ?? '';
+      enamelColorController.text = data['enamalcolor']?.toString() ?? '';
+      image1Url = "${data['image1link']!}" ?? '';
+      image2Url = "${data['image2link']!}" ?? '';
+    } catch (e) {}
+
+    print("Loaded data: $data");
+  }
+
   Constans constans = Constans();
+
   final TextEditingController orderRefController = TextEditingController();
   final TextEditingController itemController = TextEditingController();
   final TextEditingController metalController = TextEditingController();
@@ -49,8 +87,10 @@ class _OrderScreenState extends State<OrderScreen> {
       setState(() {
         if (fromCamera) {
           imageFromCamera = File(pickedFile.path);
+          image2Url = "";
         } else {
           imageFromGallery = File(pickedFile.path);
+          image1Url = "";
         }
       });
     }
@@ -88,9 +128,6 @@ class _OrderScreenState extends State<OrderScreen> {
     final now = DateTime.now();
     final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(now);
     var formData = {
-      'companyid': userData['companyid'],
-      "clouduserid": userData['username'],
-      "clientname": "",
       "orderref": orderRefController.text,
       "item": itemController.text,
       "metal": metalController.text,
@@ -105,14 +142,29 @@ class _OrderScreenState extends State<OrderScreen> {
       "itemdesc": itemDescriptionController.text,
       "image1link": image1Path,
       "image2link": image2Path,
-      "add": "1",
       "vrdate": formattedDate,
-      "pcs": pcsController.text,
-      "grosswt": grossWTController.text
+      "pcs": pcsController.text == "" ? "0" : pcsController.text,
+      "grosswt": grossWTController.text == "" ? "0" : grossWTController.text
     };
+
+    if (widget.data.containsKey('id') &&
+        widget.data['id'].toString().isNotEmpty) {
+      formData['id'] = widget.data['id'];
+      formData['edit'] = "1";
+    } else {
+      formData['add'] = "1";
+      formData['companyid'] = userData['companyid'];
+      formData["clouduserid"] = userData['username'];
+      formData["clientname"] = "";
+    }
+
+    print('formData Request $formData');
 
     String response = await constans.callApi(
         formData, "https://www.digicat.in/webroot/RiteshApi/erp_order.php");
+
+    print("Request $response");
+
     final Map<String, dynamic> jsonResponse = json.decode(response);
 
     if (jsonResponse["response"] == true &&
@@ -129,9 +181,9 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 
   void submitForm() async {
-    setState(() {
-      _isLoading = true;
-    });
+    // setState(() {
+    //   _isLoading = true;
+    // });
 
     String? userData = await Constans().getData(StaticConstant.userData);
 
@@ -140,36 +192,40 @@ class _OrderScreenState extends State<OrderScreen> {
 
     if (imageFromGallery != null) {
       image1Path = await uploadImage(jsonDecode(userData!), imageFromGallery!);
+    } else {
+      image1Path = image1Url;
     }
     if (imageFromCamera != null) {
       image2Path = await uploadImage(jsonDecode(userData!), imageFromCamera!);
+    } else {
+      image2Path = image2Url;
     }
 
     print("Image 1 Path $image1Path , Image 2 Path $image2Path ");
 
     uploadForm(jsonDecode(userData!), image1Path, image2Path);
 
-    setState(() {
-      _formKey.currentState!.reset();
-      orderRefController.clear();
-      itemController.clear();
-      metalController.clear();
-      colorController.clear();
-      sizeController.clear();
-      refSKUController.clear();
-      cRefController.clear();
-      platingController.clear();
-      rhodiumController.clear();
-      findingsController.clear();
-      pcsController.clear();
-      grossWTController.clear();
-      stoneDescriptionController.clear();
-      itemDescriptionController.clear();
-      // Optionally reset image state too
-      imageFromGallery = null;
-      imageFromCamera = null;
-      _isLoading = false;
-    });
+    // setState(() {
+    //   _formKey.currentState!.reset();
+    //   orderRefController.clear();
+    //   itemController.clear();
+    //   metalController.clear();
+    //   colorController.clear();
+    //   sizeController.clear();
+    //   refSKUController.clear();
+    //   cRefController.clear();
+    //   platingController.clear();
+    //   rhodiumController.clear();
+    //   findingsController.clear();
+    //   pcsController.clear();
+    //   grossWTController.clear();
+    //   stoneDescriptionController.clear();
+    //   itemDescriptionController.clear();
+    //   // Optionally reset image state too
+    //   imageFromGallery = null;
+    //   imageFromCamera = null;
+    //   _isLoading = false;
+    // });
   }
 
   @override
@@ -209,34 +265,65 @@ class _OrderScreenState extends State<OrderScreen> {
                     pcsController,
                     keyboardType: TextInputType.number,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    isRequired: true,
+                    isRequired: false,
                   ),
                   buildInputCard(
                     "Gross wt",
                     Icons.scale,
                     grossWTController,
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,3}')),
+                      FilteringTextInputFormatter.allow(
+                          RegExp(r'^\d+\.?\d{0,3}')),
                     ],
-                    isRequired: true,
+                    isRequired: false,
                   ),
-
                   buildCommentBox(
                       "Stone description", stoneDescriptionController),
                   buildCommentBox(
                       "Item description", itemDescriptionController),
                   sectionTitle("Images"),
                   buildImagePicker("Image 1", imageFromGallery,
-                      () => pickImage(ImageSource.gallery, false)),
+                      () => pickImage(ImageSource.gallery, false), image1Url),
                   const SizedBox(height: 16),
                   buildImagePicker("Image 2", imageFromCamera,
-                      () => pickImage(ImageSource.gallery, true)),
+                      () => pickImage(ImageSource.gallery, true), image2Url),
                   const SizedBox(height: 30),
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
-                        submitForm();
+                        print("Click");
+
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Confirm Submit"),
+                              content: const Text(
+                                  "Are you sure you want to submit this order?"),
+                              actions: [
+                                TextButton(
+                                  child: const Text("Cancel"),
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                  },
+                                ),
+                                TextButton(
+                                  child: const Text("Submit",
+                                      style:
+                                          TextStyle(color: Colors.deepPurple)),
+                                  onPressed: () {
+                                    submitForm(); // Call your function after closing
+                                    Navigator.of(context)
+                                        .pop(); // Close the dialog
+                                  },
+                                ),
+                              ],
+                            );
+                          },
+                        );
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -249,9 +336,10 @@ class _OrderScreenState extends State<OrderScreen> {
                     child: const Text(
                       'Submit Form',
                       style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.normal,
-                          color: Color(0xFFFFFFFF)),
+                        fontSize: 14,
+                        fontWeight: FontWeight.normal,
+                        color: Color(0xFFFFFFFF),
+                      ),
                     ),
                   ),
                 ],
@@ -271,14 +359,15 @@ class _OrderScreenState extends State<OrderScreen> {
       ),
     );
   }
+
   Widget buildInputCard(
-      String label,
-      IconData icon,
-      TextEditingController controller, {
-        TextInputType keyboardType = TextInputType.text,
-        List<TextInputFormatter>? inputFormatters,
-        bool isRequired = false,
-      }) {
+    String label,
+    IconData icon,
+    TextEditingController controller, {
+    TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
+    bool isRequired = false,
+  }) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -298,16 +387,15 @@ class _OrderScreenState extends State<OrderScreen> {
         ),
         validator: isRequired
             ? (value) {
-          if (value == null || value.trim().isEmpty) {
-            return '$label is required';
-          }
-          return null;
-        }
+                if (value == null || value.trim().isEmpty) {
+                  return '$label is required';
+                }
+                return null;
+              }
             : null,
       ),
     );
   }
-
 
   Widget buildCommentBox(String label, TextEditingController controller) {
     return Container(
@@ -334,7 +422,8 @@ class _OrderScreenState extends State<OrderScreen> {
     );
   }
 
-  Widget buildImagePicker(String label, File? image, VoidCallback onTap) {
+  Widget buildImagePicker(
+      String label, File? image, VoidCallback onTap, String url) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -343,24 +432,39 @@ class _OrderScreenState extends State<OrderScreen> {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 5)],
         ),
-        child: image != null
-            ? ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.file(image,
-                    fit: BoxFit.cover, width: double.infinity),
-              )
-            : Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.image_outlined, color: Colors.grey, size: 40),
-                    const SizedBox(height: 8),
-                    Text(label, style: const TextStyle(color: Colors.grey)),
-                  ],
-                ),
-              ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: url.isNotEmpty
+              ? Image.network(
+                  "https://digicat.in/webroot/RiteshApi/$url",
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  errorBuilder: (context, error, stackTrace) =>
+                      _buildPlaceholder(label),
+                )
+              : image != null
+                  ? Image.file(
+                      image,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                    )
+                  : _buildPlaceholder(label),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholder(String label) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.image_outlined, color: Colors.grey, size: 40),
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(color: Colors.grey)),
+        ],
       ),
     );
   }

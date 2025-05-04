@@ -236,8 +236,8 @@ class _SideNavigation extends State<SideNavigation> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => MaxWidthContainer(
-                            child: OrderScreen(),
+                          builder: (context) => const MaxWidthContainer(
+                            child: OrderScreen(data: {},),
                           ),
                         ), // This removes all previous routes
                       ),
