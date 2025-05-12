@@ -11,7 +11,8 @@ import 'MaxWidthContainer.dart';
 import 'OrderScreen.dart';
 
 class Orderhistoryscreen extends StatefulWidget {
-  const Orderhistoryscreen({super.key});
+  final String clouduserid;
+  const Orderhistoryscreen({super.key,required this.clouduserid});
 
   @override
   _OrderhistoryscreenState createState() => _OrderhistoryscreenState();

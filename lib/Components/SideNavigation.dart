@@ -17,6 +17,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../Pages/OrderHistoryScreen.dart';
 import '../Pages/OrderScreen.dart';
+import '../Pages/OrderUserListScreen.dart';
 import '../Pages/SalesResiterScreen.dart';
 import '../Pages/StoneOutStandingScreen.dart';
 
@@ -251,7 +252,7 @@ class _SideNavigation extends State<SideNavigation> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => const MaxWidthContainer(
-                            child: Orderhistoryscreen(),
+                            child: OrderUserListScreen(),
                           ),
                         ), // This removes all previous routes
                       ),

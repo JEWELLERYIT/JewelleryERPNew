@@ -59,7 +59,6 @@ class _HomeScreenState extends State<HomeDashBoard> {
       'sortby': sortby,
       'allstatus': "1",
       'isuser': userDataMap["isAdmin"],
-      widget.keyName: widget.data
     };
 
     String response = await constans.callApi(formData, StaticUrl.loginUrl);
@@ -68,11 +67,23 @@ class _HomeScreenState extends State<HomeDashBoard> {
     Map<String, dynamic> responseData = json.decode(response);
 
     setState(() {
-      productList = responseData['data'];
+      if (widget.data != "") {
+        setState(() {
+          productList = responseData['data'].where((client) {
+            final searchText = widget.data.toLowerCase();
+            final sku = client['sku']?.toString().toLowerCase() ?? '';
+            final jobno = client['jobno']?.toString().toLowerCase() ?? '';
+
+            return sku.contains(searchText) || jobno.contains(searchText);
+          }).toList();
+        });
+      } else {
+        productList = responseData['data'];
+      }
+
       // print("productList - productList ${productList.length}");
     });
   }
-
 
   int calculateDaysDifference(String deliveryDateStr) {
     // Parse the delivery date string into a DateTime object
@@ -360,42 +371,45 @@ class _HomeScreenState extends State<HomeDashBoard> {
                           ),
                         ],
                       ),
-                      if(isAdmin == "1") Container(
-                        width: double.infinity,
-                        height: 1,
-                        color: const Color(0xFF4C5564),
-                      ),
-                     if(isAdmin == "1") Row(
-                        children: [
-                          const Expanded(
-                            child: Text(
-                              "Client",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Color(0xFF4C5564),
-                                fontSize: 10,
-                                fontFamily: 'PoppinsMedium',
+                      if (isAdmin == "1")
+                        Container(
+                          width: double.infinity,
+                          height: 1,
+                          color: const Color(0xFF4C5564),
+                        ),
+                      if (isAdmin == "1")
+                        Row(
+                          children: [
+                            const Expanded(
+                              child: Text(
+                                "Client",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Color(0xFF4C5564),
+                                  fontSize: 10,
+                                  fontFamily: 'PoppinsMedium',
+                                ),
                               ),
                             ),
-                          ),
-                          Container(
-                            width: 1,
-                            height: 35,
-                            color: const Color(0xFF4C5564),
-                          ),
-                          Expanded(
-                            child: Text( //isAdmin
-                              productList[index]['username'],
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Color(0xFF4C5564),
-                                fontSize: 10,
-                                fontFamily: 'PoppinsMedium',
+                            Container(
+                              width: 1,
+                              height: 35,
+                              color: const Color(0xFF4C5564),
+                            ),
+                            Expanded(
+                              child: Text(
+                                //isAdmin
+                                productList[index]['username'],
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Color(0xFF4C5564),
+                                  fontSize: 10,
+                                  fontFamily: 'PoppinsMedium',
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
                       Container(
                         width: double.infinity,
                         height: 1,
@@ -403,7 +417,7 @@ class _HomeScreenState extends State<HomeDashBoard> {
                       ),
                       Row(
                         children: [
-                           Expanded(
+                          Expanded(
                             child: Text(
                               "Job No.\n${productList[index]['jobno']}",
                               textAlign: TextAlign.center,
@@ -420,7 +434,8 @@ class _HomeScreenState extends State<HomeDashBoard> {
                             color: const Color(0xFF4C5564),
                           ),
                           Expanded(
-                            child: Text( //isAdmin
+                            child: Text(
+                              //isAdmin
                               "Gross WT\n${productList[index]['grosswt']} G",
                               textAlign: TextAlign.center,
                               style: const TextStyle(
@@ -432,7 +447,6 @@ class _HomeScreenState extends State<HomeDashBoard> {
                           ),
                         ],
                       )
-
                     ],
                   ),
                 ),

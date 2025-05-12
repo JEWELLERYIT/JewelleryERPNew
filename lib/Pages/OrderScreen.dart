@@ -205,27 +205,27 @@ class _OrderScreenState extends State<OrderScreen> {
 
     uploadForm(jsonDecode(userData!), image1Path, image2Path);
 
-    // setState(() {
-    //   _formKey.currentState!.reset();
-    //   orderRefController.clear();
-    //   itemController.clear();
-    //   metalController.clear();
-    //   colorController.clear();
-    //   sizeController.clear();
-    //   refSKUController.clear();
-    //   cRefController.clear();
-    //   platingController.clear();
-    //   rhodiumController.clear();
-    //   findingsController.clear();
-    //   pcsController.clear();
-    //   grossWTController.clear();
-    //   stoneDescriptionController.clear();
-    //   itemDescriptionController.clear();
-    //   // Optionally reset image state too
-    //   imageFromGallery = null;
-    //   imageFromCamera = null;
-    //   _isLoading = false;
-    // });
+    setState(() {
+      _formKey.currentState!.reset();
+      orderRefController.clear();
+      itemController.clear();
+      metalController.clear();
+      colorController.clear();
+      sizeController.clear();
+      refSKUController.clear();
+      cRefController.clear();
+      platingController.clear();
+      rhodiumController.clear();
+      findingsController.clear();
+      pcsController.clear();
+      grossWTController.clear();
+      stoneDescriptionController.clear();
+      itemDescriptionController.clear();
+      // Optionally reset image state too
+      imageFromGallery = null;
+      imageFromCamera = null;
+      _isLoading = false;
+    });
   }
 
   @override
