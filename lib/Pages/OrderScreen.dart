@@ -30,9 +30,15 @@ class _OrderScreenState extends State<OrderScreen> {
   void initState() {
     super.initState();
 
-    final data = widget.data;
+    if (widget.data.isNotEmpty) {
+      initData();
+    }
 
-    print("Old Data $data");
+    getAllOptions();
+  }
+
+  void initData() {
+    final data = widget.data;
 
     orderRefController.text = data['orderref']?.toString() ?? '';
     sizeController.text = data['size']?.toString() ?? '';
@@ -50,8 +56,10 @@ class _OrderScreenState extends State<OrderScreen> {
 
     final String? deldateString = data['deldate']?.toString();
 
+
     setState(() {
       hasStamp = data['stamp']?.toString(); // null-safe
+      stampDateController.text = data['stamp']?.toString() ?? '';
       hasHUid = data['huid'] == "true";
       hasIGI = data['igi'] == "true";
       deliversGold = data['isgold'] == "true";
@@ -63,7 +71,6 @@ class _OrderScreenState extends State<OrderScreen> {
               deldateString != '0000-00-00')
           ? DateTime.tryParse(deldateString)
           : null;
-      DateTime? deliveryDateStr = DateTime.tryParse("2025-06-11");
 
       final DateFormat formatter = DateFormat('dd-MM-yyyy');
 
@@ -74,7 +81,8 @@ class _OrderScreenState extends State<OrderScreen> {
       }
     });
 
-    getAllOptions();
+    print("hasStamp ${data['stamp']?.toString()}");
+
   }
 
   String? _safeSelect(List<String> list, String? value) {
@@ -211,6 +219,7 @@ class _OrderScreenState extends State<OrderScreen> {
 
   DateTime? deliveryDate;
   final TextEditingController deliveryDateController = TextEditingController();
+  final TextEditingController stampDateController = TextEditingController();
 
   @override
   void dispose() {
@@ -390,6 +399,14 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final jobno = widget.data['jobno'];
+
+    bool showSubmitBtn = false;
+    if (jobno == null || jobno == '0') {
+      // Show widget
+      showSubmitBtn = true;
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text("Order Form")),
       body: Stack(
@@ -542,6 +559,8 @@ class _OrderScreenState extends State<OrderScreen> {
                     },
                   ),
                   TextFormField(
+                    controller: stampDateController,
+
                     decoration: const InputDecoration(labelText: 'Stamp'),
                     onChanged: (value) {
                       setState(() {
@@ -598,55 +617,58 @@ class _OrderScreenState extends State<OrderScreen> {
                     },
                   ),
 
-                  ElevatedButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        print("Click");
+                  Visibility(
+                    visible: showSubmitBtn,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          print("Click");
 
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text("Confirm Submit"),
-                              content: const Text(
-                                  "Are you sure you want to submit this order?"),
-                              actions: [
-                                TextButton(
-                                  child: const Text("Cancel"),
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                ),
-                                TextButton(
-                                  child: const Text("Submit",
-                                      style:
-                                          TextStyle(color: Colors.deepPurple)),
-                                  onPressed: () {
-                                    submitForm(); // Call your function after closing
-                                    Navigator.of(context)
-                                        .pop(); // Close the dialog
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      minimumSize: const Size(100, 40),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text("Confirm Submit"),
+                                content: const Text(
+                                    "Are you sure you want to submit this order?"),
+                                actions: [
+                                  TextButton(
+                                    child: const Text("Cancel"),
+                                    onPressed: () {
+                                      Navigator.of(context)
+                                          .pop(); // Close the dialog
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text("Submit",
+                                        style: TextStyle(
+                                            color: Colors.deepPurple)),
+                                    onPressed: () {
+                                      submitForm(); // Call your function after closing
+                                      Navigator.of(context)
+                                          .pop(); // Close the dialog
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        minimumSize: const Size(100, 40),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
                       ),
-                    ),
-                    child: const Text(
-                      'Submit Form',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: Color(0xFFFFFFFF),
+                      child: const Text(
+                        'Submit Form',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.normal,
+                          color: Color(0xFFFFFFFF),
+                        ),
                       ),
                     ),
                   ),

@@ -69,11 +69,11 @@ class _OrderhistoryscreenState extends State<Orderhistoryscreen> {
 
     Map<String, dynamic> responseData = json.decode(response);
 
-    print("Client OutStanding: $formData $responseData");
-
     setState(() {
       mainList = List<Map<String, dynamic>>.from(responseData['data']);
       data = List<Map<String, dynamic>>.from(responseData['data']);
+
+      print("Data List : $data");
     });
   }
 
@@ -82,7 +82,6 @@ class _OrderhistoryscreenState extends State<Orderhistoryscreen> {
       'id': id,
       'delete': "1",
     };
-    print("Client Delete: REquest  $formData");
 
     String response = await constans.callApi(
         formData, "https://www.digicat.in/webroot/RiteshApi/erp_order.php");
@@ -201,7 +200,6 @@ class _OrderhistoryscreenState extends State<Orderhistoryscreen> {
                             children: data.map((client) {
                               return GestureDetector(
                                 onTap: () => {
-                                  print("Click"),
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -381,7 +379,7 @@ class _OrderhistoryscreenState extends State<Orderhistoryscreen> {
                                                   style: const TextStyle(
                                                       fontSize: 12)),
                                               Text(
-                                                  "Delete Date:       ${client['deldate'] ?? ''}",
+                                                  "Del Date:       ${client['deldate'] ?? ''}",
                                                   style: const TextStyle(
                                                       fontSize: 12)),
                                               const SizedBox(height: 6),
