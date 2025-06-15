@@ -32,42 +32,152 @@ class _OrderScreenState extends State<OrderScreen> {
 
     final data = widget.data;
 
-    try {
-      orderRefController.text = data['orderref']?.toString() ?? '';
-      itemController.text = data['item']?.toString() ?? '';
-      metalController.text = data['metal']?.toString() ?? '';
-      colorController.text = data['color']?.toString() ?? '';
-      sizeController.text = data['size']?.toString() ?? '';
-      refSKUController.text = data['refsku']?.toString() ?? '';
-      cRefController.text = data['cref']?.toString() ?? '';
-      platingController.text =
-          data['plating']?.toString() ?? ''; // assuming 'plating' key
-      rhodiumController.text = data['rhodium']?.toString() ?? '';
-      findingsController.text = data['findings']?.toString() ?? '';
-      pcsController.text = data['pcs']?.toString() ?? '';
-      grossWTController.text = data['grosswt']?.toString() ?? '';
-      stoneDescriptionController.text = data['stonedesc']?.toString() ?? '';
-      itemDescriptionController.text = data['itemdesc']?.toString() ?? '';
-      enamelColorController.text = data['enamalcolor']?.toString() ?? '';
-      image1Url = "${data['image1link']!}" ?? '';
-      image2Url = "${data['image2link']!}" ?? '';
-    } catch (e) {}
+    print("Old Data $data");
 
-    print("Loaded data: $data");
+    orderRefController.text = data['orderref']?.toString() ?? '';
+    sizeController.text = data['size']?.toString() ?? '';
+    refSKUController.text = data['refsku']?.toString() ?? '';
+    cRefController.text = data['cref']?.toString() ?? '';
+
+    rhodiumController.text = data['rhodium']?.toString() ?? '';
+    pcsController.text = data['pcs']?.toString() ?? '';
+    grossWTController.text = data['grosswt']?.toString() ?? '';
+    stoneDescriptionController.text = data['stonedesc']?.toString() ?? '';
+    itemDescriptionController.text = data['itemdesc']?.toString() ?? '';
+    enamelColorController.text = data['enamalcolor']?.toString() ?? '';
+    image1Url = "${data['image1link']!}" ?? '';
+    image2Url = "${data['image2link']!}" ?? '';
+
+    final String? deldateString = data['deldate']?.toString();
+
+    setState(() {
+      hasStamp = data['stamp']?.toString(); // null-safe
+      hasHUid = data['huid'] == "true";
+      hasIGI = data['igi'] == "true";
+      deliversGold = data['isgold'] == "true";
+      deliversStone = data['isstone'] == "true";
+      deliversDiamond = data['isdiamond'] == "true";
+
+      deliveryDate = (deldateString != null &&
+              deldateString.isNotEmpty &&
+              deldateString != '0000-00-00')
+          ? DateTime.tryParse(deldateString)
+          : null;
+      DateTime? deliveryDateStr = DateTime.tryParse("2025-06-11");
+
+      final DateFormat formatter = DateFormat('dd-MM-yyyy');
+
+      if (deliveryDate != null) {
+        deliveryDateController.text = formatter.format(deliveryDate!);
+      } else {
+        deliveryDateController.text = '';
+      }
+    });
+
+    getAllOptions();
+  }
+
+  String? _safeSelect(List<String> list, String? value) {
+    if (value == null) return null;
+    return list
+            .firstWhere(
+              (e) => e.trim().toLowerCase() == value.trim().toLowerCase(),
+              orElse: () => '',
+            )
+            .isNotEmpty
+        ? value
+        : null;
+  }
+
+  void getAllOptions() async {
+    try {
+      String? rawUserData = await Constans().getData(StaticConstant.userData);
+
+      if (rawUserData == null) {
+        throw Exception("User data not found in local storage.");
+      }
+
+      var formData = {'companyid': 1005}; // or userData['companyid']
+
+      String response = await constans.callApi(
+        formData,
+        "https://www.digicat.in/webroot/RiteshApi/erp_ordermaster.php",
+      );
+
+      final Map<String, dynamic> jsonResponse = jsonDecode(response);
+      print("API Response: $formData $jsonResponse");
+
+      if (jsonResponse["response"] == true &&
+          jsonResponse["status_code"] == 200) {
+        // Extract and assign each list
+
+        setState(() {
+          itemList = (jsonResponse["item"] as List)
+              .map<String>((item) => item['name'].toString())
+              .toList();
+
+          itemMetal = (jsonResponse["metal"] as List)
+              .map<String>((item) => item['name'].toString())
+              .toList();
+
+          itemColor = (jsonResponse["color"] as List)
+              .map<String>((item) => item['name'].toString())
+              .toList();
+
+          itemPlating = (jsonResponse["plating"] as List)
+              .map<String>((item) => item['name'].toString())
+              .toList();
+
+          itemFindings = (jsonResponse["finding"] as List)
+              .map<String>((item) => item['name'].toString())
+              .toList();
+        });
+
+        final data = widget.data;
+
+        final item = data['item']?.toString();
+        final metal = data['metal']?.toString();
+        final color = data['color']?.toString();
+        final findings = data['findings']?.toString();
+        final plating = data['plating']?.toString();
+
+        setState(() {
+          selectedItem = _safeSelect(itemList, item);
+          selectedMetal = _safeSelect(itemMetal, metal);
+          selectedColor = _safeSelect(itemColor, color);
+          selectedFindings = _safeSelect(itemFindings, findings);
+          selectedPlating = _safeSelect(itemPlating, plating);
+        });
+        // Optionally update UI with setState if in a stateful widget
+        // setState(() {});
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Failed to load options")),
+        );
+      }
+    } catch (e) {
+      print("Error in getAllOptions: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: ${e.toString()}")),
+      );
+    }
   }
 
   Constans constans = Constans();
 
   final TextEditingController orderRefController = TextEditingController();
-  final TextEditingController itemController = TextEditingController();
-  final TextEditingController metalController = TextEditingController();
-  final TextEditingController colorController = TextEditingController();
+
+  // final TextEditingController itemController = TextEditingController();
+  // final TextEditingController metalController = TextEditingController();
+  // final TextEditingController colorController = TextEditingController();
   final TextEditingController sizeController = TextEditingController();
   final TextEditingController refSKUController = TextEditingController();
   final TextEditingController cRefController = TextEditingController();
-  final TextEditingController platingController = TextEditingController();
+
+  // final TextEditingController platingController = TextEditingController();
   final TextEditingController rhodiumController = TextEditingController();
-  final TextEditingController findingsController = TextEditingController();
+
+  // final TextEditingController findingsController = TextEditingController();
   final TextEditingController pcsController = TextEditingController();
   final TextEditingController grossWTController = TextEditingController();
   final TextEditingController stoneDescriptionController =
@@ -79,6 +189,34 @@ class _OrderScreenState extends State<OrderScreen> {
 
   File? imageFromGallery = null;
   File? imageFromCamera = null;
+
+  String? selectedItem;
+  String? selectedMetal;
+  String? selectedColor;
+  String? selectedPlating;
+  String? selectedFindings;
+
+  List<String> itemList = [];
+  List<String> itemMetal = [];
+  List<String> itemColor = [];
+  List<String> itemPlating = [];
+  List<String> itemFindings = [];
+
+  String? hasStamp;
+  bool hasHUid = false;
+  bool hasIGI = false;
+  bool deliversGold = false;
+  bool deliversStone = false;
+  bool deliversDiamond = false;
+
+  DateTime? deliveryDate;
+  final TextEditingController deliveryDateController = TextEditingController();
+
+  @override
+  void dispose() {
+    deliveryDateController.dispose();
+    super.dispose();
+  }
 
   Future<void> pickImage(ImageSource source, bool fromCamera) async {
     final pickedFile = await ImagePicker().pickImage(source: source);
@@ -129,22 +267,30 @@ class _OrderScreenState extends State<OrderScreen> {
     final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(now);
     var formData = {
       "orderref": orderRefController.text,
-      "item": itemController.text,
-      "metal": metalController.text,
-      "color": colorController.text,
+      "deldate": deliveryDate,
+      "stamp": hasStamp,
+      "huid": hasHUid,
+      "igi": hasIGI,
+      "isgold": deliversGold,
+      "isstone": deliversStone,
+      "isdiamond": deliversDiamond,
+      "item": selectedItem,
+      "metal": selectedMetal,
+      "color": selectedColor,
       "size": sizeController.text,
       "refsku": refSKUController.text,
       "cref": cRefController.text,
       "enamalcolor": enamelColorController.text,
       "rhodium": rhodiumController.text,
-      "findings": findingsController.text,
+      "findings": selectedFindings,
+      "plating": selectedPlating,
       "stonedesc": stoneDescriptionController.text,
       "itemdesc": itemDescriptionController.text,
       "image1link": image1Path,
       "image2link": image2Path,
       "vrdate": formattedDate,
       "pcs": pcsController.text == "" ? "0" : pcsController.text,
-      "grosswt": grossWTController.text == "" ? "0" : grossWTController.text
+      "grosswt": grossWTController.text == "" ? "0" : grossWTController.text,
     };
 
     if (widget.data.containsKey('id') &&
@@ -163,9 +309,8 @@ class _OrderScreenState extends State<OrderScreen> {
     String response = await constans.callApi(
         formData, "https://www.digicat.in/webroot/RiteshApi/erp_order.php");
 
-    print("Request $response");
-
     final Map<String, dynamic> jsonResponse = json.decode(response);
+    print("API Request : $response , $jsonResponse");
 
     if (jsonResponse["response"] == true &&
         jsonResponse["status_code"] == 200 &&
@@ -200,31 +345,46 @@ class _OrderScreenState extends State<OrderScreen> {
     } else {
       image2Path = image2Url;
     }
-
-    print("Image 1 Path $image1Path , Image 2 Path $image2Path ");
-
     uploadForm(jsonDecode(userData!), image1Path, image2Path);
 
     setState(() {
       _formKey.currentState!.reset();
       orderRefController.clear();
-      itemController.clear();
-      metalController.clear();
-      colorController.clear();
+      // itemController.clear();
+      // metalController.clear();
+      // colorController.clear();
       sizeController.clear();
       refSKUController.clear();
       cRefController.clear();
-      platingController.clear();
+      // platingController.clear();
       rhodiumController.clear();
-      findingsController.clear();
+      // findingsController.clear();
       pcsController.clear();
       grossWTController.clear();
       stoneDescriptionController.clear();
       itemDescriptionController.clear();
+      deliveryDateController.clear();
+
       // Optionally reset image state too
       imageFromGallery = null;
       imageFromCamera = null;
       _isLoading = false;
+    });
+
+    setState(() {
+      selectedItem = null;
+      selectedMetal = null;
+      selectedColor = null;
+      selectedPlating = null;
+      selectedFindings = null;
+      deliveryDate = null;
+
+      hasStamp = "";
+      hasHUid = false;
+      hasIGI = false;
+      deliversGold = false;
+      deliversStone = false;
+      deliversDiamond = false;
     });
   }
 
@@ -243,22 +403,85 @@ class _OrderScreenState extends State<OrderScreen> {
                   buildInputCard(
                       "Order Ref*", Icons.account_box, orderRefController,
                       isRequired: true),
-                  buildInputCard("Item*", Icons.widgets, itemController,
-                      isRequired: true),
-                  buildInputCard(
-                      "Metal*", Icons.precision_manufacturing, metalController,
-                      isRequired: true),
-                  buildInputCard("Color*", Icons.palette, colorController,
-                      isRequired: true),
+                  // buildInputCard("Item*", Icons.widgets, itemController,
+                  //     isRequired: true),
+
+                  buildDropdownCard<String>(
+                    label: 'Item*',
+                    icon: Icons.person,
+                    selectedValue: selectedItem,
+                    items: itemList,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedItem = value;
+                      });
+                    },
+                    isRequired: true,
+                  ),
+
+                  buildDropdownCard<String>(
+                    label: 'Metal*',
+                    icon: Icons.precision_manufacturing,
+                    selectedValue: selectedMetal,
+                    items: itemMetal,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedMetal = value;
+                      });
+                    },
+                    isRequired: true,
+                  ),
+                  // buildInputCard(
+                  //     "Metal*", Icons.precision_manufacturing, metalController,
+                  //     isRequired: true),
+                  // buildInputCard("Color*", Icons.palette, colorController,
+                  //     isRequired: true),
+
+                  buildDropdownCard<String>(
+                    label: 'Color*',
+                    icon: Icons.precision_manufacturing,
+                    selectedValue: selectedColor,
+                    items: itemColor,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedColor = value;
+                      });
+                    },
+                    isRequired: true,
+                  ),
                   buildInputCard("Size", Icons.account_tree, sizeController),
                   buildInputCard(
                       "Ref SKU", Icons.account_tree, refSKUController),
                   buildInputCard("C-Ref", Icons.account_tree, cRefController),
-                  buildInputCard("Plating", Icons.widgets, platingController),
-                  buildInputCard("Rhodium", Icons.where_to_vote_outlined,
-                      rhodiumController),
-                  buildInputCard(
-                      "Findings", Icons.width_full, findingsController),
+                  buildDropdownCard<String>(
+                    label: 'Plating',
+                    icon: Icons.widgets,
+                    selectedValue: selectedPlating,
+                    items: itemPlating,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedPlating = value;
+                      });
+                    },
+                    isRequired: false,
+                  ),
+                  // buildInputCard("Plating", Icons.widgets, platingController),
+                  buildInputCard("Enamal", Icons.where_to_vote_outlined,
+                      enamelColorController),
+                  buildDropdownCard<String>(
+                    label: 'Findings',
+                    icon: Icons.widgets,
+                    selectedValue: selectedFindings,
+                    items: itemFindings,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedFindings = value;
+                      });
+                    },
+                    isRequired: false,
+                  ),
+                  // buildInputCard(
+                  //     "Findings", Icons.width_full, findingsController),
                   buildInputCard(
                     "Pcs",
                     Icons.numbers,
@@ -290,6 +513,91 @@ class _OrderScreenState extends State<OrderScreen> {
                   buildImagePicker("Image 2", imageFromCamera,
                       () => pickImage(ImageSource.gallery, true), image2Url),
                   const SizedBox(height: 30),
+
+                  TextFormField(
+                    controller: deliveryDateController,
+                    readOnly: true,
+                    decoration: const InputDecoration(
+                      labelText: 'Delivery Date',
+                      suffixIcon: Icon(Icons.calendar_today),
+                    ),
+                    onTap: () async {
+                      FocusScope.of(context)
+                          .requestFocus(FocusNode()); // Close keyboard
+
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: deliveryDate ?? DateTime.now(),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+
+                      if (pickedDate != null) {
+                        setState(() {
+                          deliveryDate = pickedDate;
+                          deliveryDateController.text =
+                              "${pickedDate.day.toString().padLeft(2, '0')}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.year}";
+                        });
+                      }
+                    },
+                  ),
+                  TextFormField(
+                    decoration: const InputDecoration(labelText: 'Stamp'),
+                    onChanged: (value) {
+                      setState(() {
+                        hasStamp = value;
+                      });
+                    },
+                  ),
+                  SwitchListTile(
+                    title: const Text('HUID'),
+                    value: hasHUid,
+                    onChanged: (value) {
+                      setState(() {
+                        hasHUid = value;
+                      });
+                    },
+                  ),
+                  SwitchListTile(
+                    title: const Text('IGI'),
+                    value: hasIGI,
+                    onChanged: (value) {
+                      setState(() {
+                        hasIGI = value;
+                      });
+                    },
+                  ),
+
+                  SwitchListTile(
+                    title: const Text('We Deliver Gold'),
+                    value: deliversGold,
+                    onChanged: (value) {
+                      setState(() {
+                        deliversGold = value;
+                      });
+                    },
+                  ),
+
+                  SwitchListTile(
+                    title: const Text('We Deliver Stone'),
+                    value: deliversStone,
+                    onChanged: (value) {
+                      setState(() {
+                        deliversStone = value;
+                      });
+                    },
+                  ),
+
+                  SwitchListTile(
+                    title: const Text('We Deliver Diamond'),
+                    value: deliversDiamond,
+                    onChanged: (value) {
+                      setState(() {
+                        deliversDiamond = value;
+                      });
+                    },
+                  ),
+
                   ElevatedButton(
                     onPressed: () {
                       if (_formKey.currentState!.validate()) {
@@ -393,6 +701,53 @@ class _OrderScreenState extends State<OrderScreen> {
                 return null;
               }
             : null,
+      ),
+    );
+  }
+
+  Widget buildDropdownCard<T>({
+    required String label,
+    required IconData icon,
+    required T? selectedValue,
+    required List<T> items,
+    required void Function(T?) onChanged,
+    bool isRequired = false,
+    String? Function(T?)? validator,
+    String Function(T)? itemToString,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+      ),
+      child: DropdownButtonFormField<T>(
+        value: selectedValue,
+        isExpanded: true,
+        icon: const Icon(Icons.arrow_drop_down),
+        decoration: InputDecoration(
+          icon: Icon(icon, color: Colors.deepPurple),
+          labelText: label,
+          border: InputBorder.none,
+        ),
+        validator: isRequired
+            ? (value) {
+                if (value == null) {
+                  return '$label is required';
+                }
+                return null;
+              }
+            : validator,
+        onChanged: onChanged,
+        items: items.map((T value) {
+          return DropdownMenuItem<T>(
+            value: value,
+            child: Text(
+                itemToString != null ? itemToString(value) : value.toString()),
+          );
+        }).toList(),
       ),
     );
   }

@@ -110,6 +110,33 @@ class Constans {
     }
   }
 
+  Future<String> getApiCall(String urlStr) async {
+    var url = Uri.parse(urlStr);
+
+    // Create a multipart request
+    var request = http.MultipartRequest('GET', url);
+
+    try {
+      // Send the request
+      var response = await request.send();
+
+      // Convert response to a string
+      var responseBody = await response.stream.bytesToString();
+
+      // print("responseBody  : $responseBody");
+      if (response.statusCode == 200) {
+        return responseBody;
+      } else {
+        showToast("Error: ${response.reasonPhrase}");
+        return "";
+      }
+    } catch (e) {
+      // Handle exceptions
+      showToast("Exception: $e");
+      return "";
+    }
+  }
+
   void showToast(String message) {
     Fluttertoast.showToast(
       msg: message,

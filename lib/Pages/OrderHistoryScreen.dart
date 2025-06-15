@@ -12,7 +12,8 @@ import 'OrderScreen.dart';
 
 class Orderhistoryscreen extends StatefulWidget {
   final String clouduserid;
-  const Orderhistoryscreen({super.key,required this.clouduserid});
+
+  const Orderhistoryscreen({super.key, required this.clouduserid});
 
   @override
   _OrderhistoryscreenState createState() => _OrderhistoryscreenState();
@@ -373,6 +374,14 @@ class _OrderhistoryscreenState extends State<Orderhistoryscreen> {
                                                       fontSize: 12)),
                                               Text(
                                                   "C-Ref:       ${client['cref'] ?? ''}",
+                                                  style: const TextStyle(
+                                                      fontSize: 12)),
+                                              Text(
+                                                  "Job no:       ${client['jobno'] ?? ''}",
+                                                  style: const TextStyle(
+                                                      fontSize: 12)),
+                                              Text(
+                                                  "Delete Date:       ${client['deldate'] ?? ''}",
                                                   style: const TextStyle(
                                                       fontSize: 12)),
                                               const SizedBox(height: 6),
