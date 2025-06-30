@@ -62,24 +62,32 @@ class _HomeScreenState extends State<HomeDashBoard> {
     };
 
     String response = await constans.callApi(formData, StaticUrl.loginUrl);
-    print("responseData $formData $response");
+    print("responseData === $formData $response");
 
     Map<String, dynamic> responseData = json.decode(response);
 
     setState(() {
-      if (widget.data != "") {
+      if (widget.data != "" && widget.keyName == "search") {
         setState(() {
           productList = responseData['data'].where((client) {
             final searchText = widget.data.toLowerCase();
+
+            print("searchText $searchText");
             final sku = client['sku']?.toString().toLowerCase() ?? '';
             final jobno = client['jobno']?.toString().toLowerCase() ?? '';
 
             return sku.contains(searchText) || jobno.contains(searchText);
           }).toList();
+
+          print("productList 1: $productList");
         });
       } else {
+        print("productList 2: $productList");
+
         productList = responseData['data'];
       }
+
+      print("productList  $productList");
 
       // print("productList - productList ${productList.length}");
     });
