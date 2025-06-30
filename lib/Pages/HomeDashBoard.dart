@@ -59,8 +59,11 @@ class _HomeScreenState extends State<HomeDashBoard> {
       'sortby': sortby,
       'allstatus': "1",
       'isuser': userDataMap["isAdmin"],
-      widget.keyName: widget.data
     };
+
+    if (widget.keyName != "search") {
+      formData[widget.keyName] = widget.data;
+    }
 
     String response = await constans.callApi(formData, StaticUrl.loginUrl);
     print("responseData === $formData $response");
