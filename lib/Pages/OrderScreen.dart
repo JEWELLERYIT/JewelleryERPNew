@@ -2,10 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import '../Constants/Functions.dart';
 import '../Constants/StaticConstant.dart';
 
@@ -25,16 +28,75 @@ class _OrderScreenState extends State<OrderScreen> {
   String image2Url = "";
 
   bool _isLoading = false;
+  bool isRecording = false;
+  bool isPlaying = false;
+  String? voiceNotePath;
+
+  FlutterSoundRecorder recorder = FlutterSoundRecorder();
+  FlutterSoundPlayer player = FlutterSoundPlayer();
 
   @override
   void initState() {
     super.initState();
-
+    initPlayer(); // already opens player
+    initRecorder(); // already opens recorder
     if (widget.data.isNotEmpty) {
       initData();
     }
-
     getAllOptions();
+  }
+
+  Future<void> initPlayer() async {
+    await player.openPlayer();
+  }
+
+  Future<void> initRecorder() async {
+    await recorder.openRecorder();
+  }
+
+  // Future<void> playVoiceNote() async {
+  //   if (voiceNotePath == null) return;
+
+  //   if (player.isOpen == true) {
+  //     await player.openPlayer(); // ensure player is open
+  //   }
+
+  //   if (!isPlaying) {
+  //     await player.startPlayer(
+  //       fromURI: voiceNotePath,
+  //       codec: Codec.aacMP4,
+  //       whenFinished: () {
+  //         setState(() => isPlaying = false);
+  //       },
+  //     );
+  //     setState(() => isPlaying = true);
+  //   } else {
+  //     await player.stopPlayer();
+  //     setState(() => isPlaying = false);
+  //   }
+  // }
+  Future<void> playVoiceNote() async {
+    if (voiceNotePath == null) return;
+
+    // Open player if not already open
+    bool isPlayerOpen = await player.isOpen(); // await the Future
+    if (!isPlayerOpen) {
+      await player.openPlayer();
+    }
+
+    if (!isPlaying) {
+      await player.startPlayer(
+        fromURI: voiceNotePath,
+        codec: Codec.aacMP4,
+        whenFinished: () {
+          setState(() => isPlaying = false);
+        },
+      );
+      setState(() => isPlaying = true);
+    } else {
+      await player.stopPlayer();
+      setState(() => isPlaying = false);
+    }
   }
 
   void initData() {
@@ -55,7 +117,6 @@ class _OrderScreenState extends State<OrderScreen> {
     image2Url = "${data['image2link']!}" ?? '';
 
     final String? deldateString = data['deldate']?.toString();
-
 
     setState(() {
       hasStamp = data['stamp']?.toString(); // null-safe
@@ -82,8 +143,51 @@ class _OrderScreenState extends State<OrderScreen> {
     });
 
     print("hasStamp ${data['stamp']?.toString()}");
-
   }
+
+  Future<String> getVoiceNotePath() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path =
+        '${directory.path}/voice_note_${DateTime.now().millisecondsSinceEpoch}.aac';
+    return path;
+  }
+
+  // Future<void> playVoiceNote() async {
+  //   if (voiceNotePath == null) return;
+
+  //   if (!isPlaying) {
+  //     await player.startPlayer(
+  //       fromURI: voiceNotePath,
+  //       codec: Codec.aacMP4,
+  //       whenFinished: () {
+  //         setState(() => isPlaying = false);
+  //       },
+  //     );
+  //     setState(() => isPlaying = true);
+  //   } else {
+  //     await player.stopPlayer();
+  //     setState(() => isPlaying = false);
+  //   }
+  // }
+
+  // Future<void> recordVoiceNote() async {
+  //   // Request microphone permission
+  //   var micStatus = await Permission.microphone.request();
+  //   if (!micStatus.isGranted) return;
+
+  //   if (!isRecording) {
+  //     // Start recording
+  //     await recorder.openRecorder();
+  //     voiceNotePath = await getVoiceNotePath(); // safe path
+  //     await recorder.startRecorder(toFile: voiceNotePath);
+  //     isRecording = true;
+  //   } else {
+  //     // Stop recording
+  //     await recorder.stopRecorder();
+  //     isRecording = false;
+  //     setState(() {}); // update UI to show recorded file
+  //   }
+  // }
 
   String? _safeSelect(List<String> list, String? value) {
     if (value == null) return null;
@@ -223,8 +327,74 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   void dispose() {
+    recorder.closeRecorder();
+    player.closePlayer();
     deliveryDateController.dispose();
     super.dispose();
+  }
+
+  Future<void> recordVoiceNote() async {
+    var status = await Permission.microphone.request();
+    if (!status.isGranted) return;
+
+    if (!isRecording) {
+      final dir = await getApplicationDocumentsDirectory();
+      voiceNotePath =
+          '${dir.path}/voice_note_${DateTime.now().millisecondsSinceEpoch}.aac';
+
+      await recorder.startRecorder(toFile: voiceNotePath, codec: Codec.aacMP4);
+      setState(() => isRecording = true);
+    } else {
+      await recorder.stopRecorder();
+      setState(() => isRecording = false);
+    }
+  }
+
+  Widget buildVoiceNotePicker(
+    String label,
+    String? recordedFilePath,
+    bool isRecording,
+    bool isPlaying,
+    VoidCallback onRecordPressed,
+    VoidCallback onPlayPressed,
+  ) {
+    String displayText;
+
+    if (isRecording) {
+      displayText = "Recording...";
+    } else if (recordedFilePath != null) {
+      displayText = recordedFilePath.split('/').last; // show file name
+    } else {
+      displayText = "No voice note yet";
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.mic, color: Colors.deepPurple),
+          const SizedBox(width: 12),
+          Expanded(child: Text(displayText)),
+          IconButton(
+            icon: Icon(isRecording ? Icons.stop : Icons.fiber_manual_record,
+                color: Colors.deepPurple),
+            onPressed: onRecordPressed,
+          ),
+          if (!isRecording && recordedFilePath != null)
+            IconButton(
+              icon: Icon(isPlaying ? Icons.stop : Icons.play_arrow,
+                  color: Colors.deepPurple),
+              onPressed: onPlayPressed,
+            ),
+        ],
+      ),
+    );
   }
 
   Future<void> pickImage(ImageSource source, bool fromCamera) async {
@@ -270,13 +440,199 @@ class _OrderScreenState extends State<OrderScreen> {
     }
   }
 
-  Future<void> uploadForm(Map<String, dynamic> userData, String image1Path,
-      String image2Path) async {
+// ---------------------- UPLOAD VOICE NOTE ----------------------
+  // Future<String> uploadVoiceNote(
+  //     Map<String, dynamic> userData, File voiceFile) async {
+  //   var request = http.MultipartRequest(
+  //     'POST',
+  //     Uri.parse('https://www.digicat.in/webroot/RiteshApi/erp_orderimage.php'),
+  //   );
+
+  //   request.fields['companyid'] = userData['companyid'];
+
+  //   request.files.add(
+  //     await http.MultipartFile.fromPath(
+  //       'vnotelink', // backend expects this field
+  //       voiceFile.path,
+  //       contentType: MediaType('audio', 'aac'),
+  //     ),
+  //   );
+
+  //   var response = await request.send();
+
+  //   if (response.statusCode == 200) {
+  //     final responseBody = await response.stream.bytesToString();
+  //     final decodedJson = json.decode(responseBody);
+
+  //     // If backend returns path, use it
+  //     String uploadedPath = decodedJson["file"] ?? "";
+
+  //     // If backend does not return path, construct relative path manually
+  //     if (uploadedPath.isEmpty) {
+  //       uploadedPath = "uploads/erp/${userData['companyid']}/order/" +
+  //           voiceFile.path.split('/').last;
+  //     }
+
+  //     print("Voice note uploaded to: $uploadedPath");
+  //     return uploadedPath;
+  //   } else {
+  //     print("Voice note upload failed: ${response.statusCode}");
+  //     return "";
+  //   }
+  // }
+  // Future<String> uploadVoiceNote(
+  //     Map<String, dynamic> userData, File voiceFile) async {
+  //   var request = http.MultipartRequest(
+  //     'POST',
+  //     Uri.parse('https://www.digicat.in/webroot/RiteshApi/erp_orderaudio.php'),
+  //   );
+
+  //   // Add company ID field
+  //   request.fields['companyid'] = userData['companyid'];
+
+  //   // Attach the voice note file
+  //   request.files.add(
+  //     await http.MultipartFile.fromPath(
+  //       'vnotelink', // name of the field in backend
+  //       voiceFile.path,
+  //       contentType: MediaType('audio', 'aac'), // optional but recommended
+  //     ),
+  //   );
+
+  //   // Send request
+  //   var response = await request.send();
+
+  //   if (response.statusCode == 200) {
+  //     print(
+  //         "====================================================Success ho gya bhai${response.s}");
+  //     final responseBody = await response.stream.bytesToString();
+  //     final decodedJson = json.decode(responseBody);
+
+  //     // Return file path from backend if provided, else empty string
+  //     return decodedJson["file"] ?? "";
+  //   } else {
+  //     print("Voice note upload failed: ${response.statusCode}");
+  //     return "";
+  //   }
+  // }
+  // Future<String> uploadVoiceNote(
+  //     Map<String, dynamic> userData, File voiceFile) async {
+  //   try {
+  //     // Create multipart request (same endpoint as images)
+  //     var request = http.MultipartRequest(
+  //       'POST',
+  //       Uri.parse(
+  //           'https://www.digicat.in/webroot/RiteshApi/erp_orderimage.php'),
+  //     );
+
+  //     // Add company ID field
+  //     request.fields['companyid'] = userData['companyid'];
+
+  //     // Attach voice note file
+  //     request.files.add(await http.MultipartFile.fromPath(
+  //       'vnotelink', // use 'image' like image upload, backend may be expecting this
+  //       voiceFile.path,
+  //       contentType: MediaType('audio', 'aac'), // specify audio type
+  //     ));
+
+  //     // Debug info
+  //     print("Preparing to upload voice note:");
+  //     print("File path: ${voiceFile.path}");
+  //     print("File size: ${await voiceFile.length()} bytes");
+  //     print("MultipartFile prepared: ${voiceFile.path.split('/').last}");
+  //     print("Request fields: ${request.fields}");
+  //     print("Number of files attached: ${request.files.length}");
+
+  //     // Send request
+  //     var response = await request.send();
+  //     final responseBody = await response.stream.bytesToString();
+
+  //     print("Response status: ${response.statusCode}");
+  //     print("Raw response body: $responseBody");
+
+  //     final decodedJson = json.decode(responseBody);
+  //     print("Decoded JSON: $decodedJson");
+
+  //     // Return file path from backend if provided, else construct manually
+  //     String uploadedPath = decodedJson["file"] ?? "";
+  //     if (uploadedPath.isEmpty) {
+  //       uploadedPath = "uploads/erp/${userData['companyid']}/order/" +
+  //           voiceFile.path.split('/').last;
+  //       print("Voice note path constructed manually: $uploadedPath");
+  //     }
+
+  //     return uploadedPath;
+  //   } catch (e) {
+  //     print("Voice note upload exception: $e");
+  //     return "";
+  //   }
+  // }
+  Future<String> uploadVoiceNote(
+      Map<String, dynamic> userData, File voiceFile) async {
+    try {
+      // Correct endpoint for audio upload
+      var request = http.MultipartRequest(
+        'POST',
+        Uri.parse(
+            'https://www.digicat.in/webroot/RiteshApi/erp_orderaudio.php'),
+      );
+
+      // Add fields (must include companyid and fileName)
+      request.fields['companyid'] = userData['companyid'].toString();
+      request.fields['fileName'] = voiceFile.path.split('/').last;
+
+      // Attach the voice note file — use key "audio"
+      request.files.add(await http.MultipartFile.fromPath(
+        'audio',
+        voiceFile.path,
+        contentType: MediaType('audio', 'mpeg'), // works for mp3, m4a, aac
+      ));
+
+      print("🎤 Uploading voice note...");
+      print("File path: ${voiceFile.path}");
+      print("Company ID: ${userData['companyid']}");
+      print("Request fields: ${request.fields}");
+
+      // Send the request
+      var response = await request.send();
+      final responseBody = await response.stream.bytesToString();
+
+      print("Response status: ${response.statusCode}");
+      print("Raw response body: $responseBody");
+
+      if (response.statusCode == 200) {
+        final decoded = json.decode(responseBody);
+
+        if (decoded["success"] == true) {
+          print("✅ Voice upload success: ${decoded['file']}");
+          return decoded["file"];
+        } else {
+          print("⚠️ Upload failed: ${decoded['message']}");
+          return "";
+        }
+      } else {
+        print("❌ Server error: ${response.statusCode}");
+        return "";
+      }
+    } catch (e) {
+      print("Voice note upload exception: $e");
+      return "";
+    }
+  }
+
+// ---------------------- UPLOAD FORM ----------------------
+  Future<void> uploadForm(
+    Map<String, dynamic> userData,
+    String image1Path,
+    String image2Path, [
+    String? voiceNotePath,
+  ]) async {
     final now = DateTime.now();
     final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(now);
+
     var formData = {
       "orderref": orderRefController.text,
-      "deldate": deliveryDate,
+      "deldate": deliveryDate ?? "",
       "stamp": hasStamp,
       "huid": hasHUid,
       "igi": hasIGI,
@@ -297,9 +653,10 @@ class _OrderScreenState extends State<OrderScreen> {
       "itemdesc": itemDescriptionController.text,
       "image1link": image1Path,
       "image2link": image2Path,
+      "vnotelink": voiceNotePath ?? "",
       "vrdate": formattedDate,
-      "pcs": pcsController.text == "" ? "0" : pcsController.text,
-      "grosswt": grossWTController.text == "" ? "0" : grossWTController.text,
+      "pcs": pcsController.text.isEmpty ? "1" : pcsController.text,
+      "grosswt": grossWTController.text.isEmpty ? "0" : grossWTController.text,
     };
 
     if (widget.data.containsKey('id') &&
@@ -334,51 +691,56 @@ class _OrderScreenState extends State<OrderScreen> {
     }
   }
 
+// ---------------------- SUBMIT FORM ----------------------
   void submitForm() async {
-    // setState(() {
-    //   _isLoading = true;
-    // });
+    setState(() {
+      _isLoading = true;
+    });
 
-    String? userData = await Constans().getData(StaticConstant.userData);
+    String? userDataStr = await Constans().getData(StaticConstant.userData);
+    final userData = jsonDecode(userDataStr!);
 
     String image1Path = "";
     String image2Path = "";
+    String voicePath = "";
 
     if (imageFromGallery != null) {
-      image1Path = await uploadImage(jsonDecode(userData!), imageFromGallery!);
+      image1Path = await uploadImage(userData, imageFromGallery!);
     } else {
       image1Path = image1Url;
     }
+
     if (imageFromCamera != null) {
-      image2Path = await uploadImage(jsonDecode(userData!), imageFromCamera!);
+      image2Path = await uploadImage(userData, imageFromCamera!);
     } else {
       image2Path = image2Url;
     }
-    uploadForm(jsonDecode(userData!), image1Path, image2Path);
 
-    setState(() {
-      _formKey.currentState!.reset();
-      orderRefController.clear();
-      // itemController.clear();
-      // metalController.clear();
-      // colorController.clear();
-      sizeController.clear();
-      refSKUController.clear();
-      cRefController.clear();
-      // platingController.clear();
-      rhodiumController.clear();
-      // findingsController.clear();
-      pcsController.clear();
-      grossWTController.clear();
-      stoneDescriptionController.clear();
-      itemDescriptionController.clear();
-      deliveryDateController.clear();
+    // Upload voice note if it exists
+    if (voiceNotePath != null && File(voiceNotePath!).existsSync()) {
+      File voiceFile = File(voiceNotePath!);
+      voicePath = await uploadVoiceNote(userData, voiceFile);
+    }
 
-      // Optionally reset image state too
-      imageFromGallery = null;
-      imageFromCamera = null;
-      _isLoading = false;
-    });
+    await uploadForm(userData, image1Path, image2Path, voicePath);
+
+    // Reset form
+    _formKey.currentState!.reset();
+    orderRefController.clear();
+    sizeController.clear();
+    refSKUController.clear();
+    cRefController.clear();
+    rhodiumController.clear();
+    pcsController.clear();
+    grossWTController.clear();
+    stoneDescriptionController.clear();
+    itemDescriptionController.clear();
+    deliveryDateController.clear();
+    enamelColorController.clear();
+
+    imageFromGallery = null;
+    imageFromCamera = null;
+    voiceNotePath = null;
 
     setState(() {
       selectedItem = null;
@@ -394,8 +756,314 @@ class _OrderScreenState extends State<OrderScreen> {
       deliversGold = false;
       deliversStone = false;
       deliversDiamond = false;
+
+      _isLoading = false;
     });
   }
+
+  // Future<String> uploadVoiceNote(
+  //     Map<String, dynamic> userData, File voiceFile) async {
+  //   var request = http.MultipartRequest(
+  //     'POST',
+  //     Uri.parse('https://www.digicat.in/webroot/RiteshApi/erp_orderimage.php'),
+  //   );
+
+  //   // Add company ID field
+  //   request.fields['companyid'] = userData['companyid'];
+
+  //   // Attach voice note file
+  //   request.files.add(
+  //     await http.MultipartFile.fromPath(
+  //       'vnotelink', // backend expects this field
+  //       voiceFile.path,
+  //       contentType: MediaType('audio', 'aac'), // optional but recommended
+  //     ),
+  //   );
+
+  //   var response = await request.send();
+
+  //   if (response.statusCode == 200) {
+  //     print(
+  //         "====================================================Success ho gya bhai");
+  //     print(voiceFile.path);
+  //     final responseBody = await response.stream.bytesToString();
+  //     final decodedJson = json.decode(responseBody);
+
+  //     // Backend should return uploaded file path
+  //     return decodedJson["file"] ?? "";
+  //   } else {
+  //     print("Voice note upload failed: ${response.statusCode}");
+  //     return "";
+  //   }
+  // }
+
+  // Future<void> uploadForm(
+  //     Map<String, dynamic> userData, String image1Path, String image2Path,
+  //     [String? voiceNotePath]) async {
+  //   final now = DateTime.now();
+  //   final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(now);
+
+  //   var formData = {
+  //     "orderref": orderRefController.text,
+  //     "deldate": deliveryDate, // make sure deliveryDate is not null
+  //     "stamp": hasStamp,
+  //     "huid": hasHUid,
+  //     "igi": hasIGI,
+  //     "isgold": deliversGold,
+  //     "isstone": deliversStone,
+  //     "isdiamond": deliversDiamond,
+  //     "item": selectedItem,
+  //     "metal": selectedMetal,
+  //     "color": selectedColor,
+  //     "size": sizeController.text,
+  //     "refsku": refSKUController.text,
+  //     "cref": cRefController.text,
+  //     "enamalcolor": enamelColorController.text,
+  //     "rhodium": rhodiumController.text,
+  //     "findings": selectedFindings,
+  //     "plating": selectedPlating,
+  //     "stonedesc": stoneDescriptionController.text,
+  //     "itemdesc": itemDescriptionController.text,
+  //     "image1link": image1Path,
+  //     "image2link": image2Path,
+  //     "vnotelink": voiceNotePath ?? "",
+  //     "vrdate": formattedDate,
+  //     "pcs": pcsController.text.isEmpty ? "1" : pcsController.text,
+  //     "grosswt": grossWTController.text.isEmpty ? "0" : grossWTController.text,
+  //   };
+
+  //   // Include voice note only if it exists
+  //   // if (voiceNotePath != null && voiceNotePath.isNotEmpty) {
+  //   //   formData["vnotelink"] = voiceNotePath;
+  //   // }
+
+  //   if (widget.data.containsKey('id') &&
+  //       widget.data['id'].toString().isNotEmpty) {
+  //     formData['id'] = widget.data['id'];
+  //     formData['edit'] = "1";
+  //   } else {
+  //     formData['add'] = "1";
+  //     formData['companyid'] = userData['companyid'];
+  //     formData["clouduserid"] = userData['username'];
+  //     formData["clientname"] = "";
+  //   }
+
+  //   print('formData Request $formData');
+
+  //   String response = await constans.callApi(
+  //       formData, "https://www.digicat.in/webroot/RiteshApi/erp_order.php");
+
+  //   final Map<String, dynamic> jsonResponse = json.decode(response);
+  //   print("API Request : $response , $jsonResponse");
+
+  //   if (jsonResponse["response"] == true &&
+  //       jsonResponse["status_code"] == 200 &&
+  //       jsonResponse["data"]?["new_id"] != 0) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text("Order Form Submitted Successfully")),
+  //     );
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text("Order Submission Failed")),
+  //     );
+  //   }
+  // }
+
+  // void submitForm() async {
+  //   setState(() {
+  //     _isLoading = true;
+  //   });
+
+  //   String? userDataStr = await Constans().getData(StaticConstant.userData);
+  //   final userData = jsonDecode(userDataStr!);
+
+  //   String image1Path = "";
+  //   String image2Path = "";
+  //   String voicePath = "";
+
+  //   if (imageFromGallery != null) {
+  //     image1Path = await uploadImage(userData, imageFromGallery!);
+  //   } else {
+  //     image1Path = image1Url;
+  //   }
+
+  //   if (imageFromCamera != null) {
+  //     image2Path = await uploadImage(userData, imageFromCamera!);
+  //   } else {
+  //     image2Path = image2Url;
+  //   }
+
+  //   // Upload voice note if it exists
+  //   if (voiceNotePath != null && File(voiceNotePath!).existsSync()) {
+  //     File voiceFile = File(voiceNotePath!);
+  //     voicePath = await uploadVoiceNote(userData, voiceFile);
+  //   }
+
+  //   await uploadForm(userData, image1Path, image2Path, voicePath);
+
+  //   // Reset form
+  //   _formKey.currentState!.reset();
+  //   orderRefController.clear();
+  //   sizeController.clear();
+  //   refSKUController.clear();
+  //   cRefController.clear();
+  //   rhodiumController.clear();
+  //   pcsController.clear();
+  //   grossWTController.clear();
+  //   stoneDescriptionController.clear();
+  //   itemDescriptionController.clear();
+  //   deliveryDateController.clear();
+  //   enamelColorController.clear();
+
+  //   imageFromGallery = null;
+  //   imageFromCamera = null;
+  //   voiceNotePath = null;
+
+  //   setState(() {
+  //     selectedItem = null;
+  //     selectedMetal = null;
+  //     selectedColor = null;
+  //     selectedPlating = null;
+  //     selectedFindings = null;
+  //     deliveryDate = null;
+
+  //     hasStamp = "";
+  //     hasHUid = false;
+  //     hasIGI = false;
+  //     deliversGold = false;
+  //     deliversStone = false;
+  //     deliversDiamond = false;
+
+  //     _isLoading = false;
+  //   });
+  // }
+
+  // Future<void> uploadForm(Map<String, dynamic> userData, String image1Path,
+  //     String image2Path) async {
+  //   final now = DateTime.now();
+  //   final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(now);
+  //   var formData = {
+  //     "orderref": orderRefController.text,
+  //     "deldate": deliveryDate,
+  //     "stamp": hasStamp,
+  //     "huid": hasHUid,
+  //     "igi": hasIGI,
+  //     "isgold": deliversGold,
+  //     "isstone": deliversStone,
+  //     "isdiamond": deliversDiamond,
+  //     "item": selectedItem,
+  //     "metal": selectedMetal,
+  //     "color": selectedColor,
+  //     "size": sizeController.text,
+  //     "refsku": refSKUController.text,
+  //     "cref": cRefController.text,
+  //     "enamalcolor": enamelColorController.text,
+  //     "rhodium": rhodiumController.text,
+  //     "findings": selectedFindings,
+  //     "plating": selectedPlating,
+  //     "stonedesc": stoneDescriptionController.text,
+  //     "itemdesc": itemDescriptionController.text,
+  //     "image1link": image1Path,
+  //     "image2link": image2Path,
+  //     "vrdate": formattedDate,
+  //     "pcs": pcsController.text == "" ? "1" : pcsController.text,
+  //     "grosswt": grossWTController.text == "" ? "0" : grossWTController.text,
+  //   };
+
+  //   if (widget.data.containsKey('id') &&
+  //       widget.data['id'].toString().isNotEmpty) {
+  //     formData['id'] = widget.data['id'];
+  //     formData['edit'] = "1";
+  //   } else {
+  //     formData['add'] = "1";
+  //     formData['companyid'] = userData['companyid'];
+  //     formData["clouduserid"] = userData['username'];
+  //     formData["clientname"] = "";
+  //   }
+
+  //   print('formData Request $formData');
+
+  //   String response = await constans.callApi(
+  //       formData, "https://www.digicat.in/webroot/RiteshApi/erp_order.php");
+
+  //   final Map<String, dynamic> jsonResponse = json.decode(response);
+  //   print("API Request : $response , $jsonResponse");
+
+  //   if (jsonResponse["response"] == true &&
+  //       jsonResponse["status_code"] == 200 &&
+  //       jsonResponse["data"]?["new_id"] != 0) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text("Order Form Submitted Successfully")),
+  //     );
+  //   } else {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       const SnackBar(content: Text("Order Submission Failed")),
+  //     );
+  //   }
+  // }
+
+  // void submitForm() async {
+  //   // setState(() {
+  //   //   _isLoading = true;
+  //   // });
+
+  //   String? userData = await Constans().getData(StaticConstant.userData);
+
+  //   String image1Path = "";
+  //   String image2Path = "";
+
+  //   if (imageFromGallery != null) {
+  //     image1Path = await uploadImage(jsonDecode(userData!), imageFromGallery!);
+  //   } else {
+  //     image1Path = image1Url;
+  //   }
+  //   if (imageFromCamera != null) {
+  //     image2Path = await uploadImage(jsonDecode(userData!), imageFromCamera!);
+  //   } else {
+  //     image2Path = image2Url;
+  //   }
+  //   uploadForm(jsonDecode(userData!), image1Path, image2Path);
+
+  //   setState(() {
+  //     _formKey.currentState!.reset();
+  //     orderRefController.clear();
+  //     // itemController.clear();
+  //     // metalController.clear();
+  //     // colorController.clear();
+  //     sizeController.clear();
+  //     refSKUController.clear();
+  //     cRefController.clear();
+  //     // platingController.clear();
+  //     rhodiumController.clear();
+  //     // findingsController.clear();
+  //     pcsController.clear();
+  //     grossWTController.clear();
+  //     stoneDescriptionController.clear();
+  //     itemDescriptionController.clear();
+  //     deliveryDateController.clear();
+
+  //     // Optionally reset image state too
+  //     imageFromGallery = null;
+  //     imageFromCamera = null;
+  //     _isLoading = false;
+  //   });
+
+  //   setState(() {
+  //     selectedItem = null;
+  //     selectedMetal = null;
+  //     selectedColor = null;
+  //     selectedPlating = null;
+  //     selectedFindings = null;
+  //     deliveryDate = null;
+
+  //     hasStamp = "";
+  //     hasHUid = false;
+  //     hasIGI = false;
+  //     deliversGold = false;
+  //     deliversStone = false;
+  //     deliversDiamond = false;
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -499,77 +1167,127 @@ class _OrderScreenState extends State<OrderScreen> {
                   ),
                   // buildInputCard(
                   //     "Findings", Icons.width_full, findingsController),
-                  buildInputCard(
-                    "Pcs",
-                    Icons.numbers,
-                    pcsController,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    isRequired: false,
-                  ),
-                  buildInputCard(
-                    "Gross wt",
-                    Icons.scale,
-                    grossWTController,
-                    keyboardType:
-                        const TextInputType.numberWithOptions(decimal: true),
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'^\d+\.?\d{0,3}')),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: buildInputCard(
+                          "Pcs",
+                          Icons.numbers,
+                          pcsController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly
+                          ],
+                          isRequired: false,
+                        ),
+                      ),
+                      SizedBox(
+                        width: 20,
+                      ),
+                      Expanded(
+                        child: buildInputCard(
+                          "Gross wt",
+                          Icons.scale,
+                          grossWTController,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d+\.?\d{0,3}')),
+                          ],
+                          isRequired: false,
+                        ),
+                      ),
                     ],
-                    isRequired: false,
                   ),
                   buildCommentBox(
                       "Stone description", stoneDescriptionController),
                   buildCommentBox(
                       "Item description", itemDescriptionController),
                   sectionTitle("Images"),
+                  // buildImagePicker("Image 1", imageFromGallery,
+                  //     () => pickImage(ImageSource.gallery, false), image1Url),
+                  // const SizedBox(height: 16),
+                  // buildImagePicker("Image 2", imageFromCamera,
+                  //     () => pickImage(ImageSource.gallery, true), image2Url),
+                  // const SizedBox(height: 30),
                   buildImagePicker("Image 1", imageFromGallery,
                       () => pickImage(ImageSource.gallery, false), image1Url),
                   const SizedBox(height: 16),
                   buildImagePicker("Image 2", imageFromCamera,
                       () => pickImage(ImageSource.gallery, true), image2Url),
+                  const SizedBox(height: 16),
+                  // buildVoiceNotePicker("Voice Note",
+                  //     voiceNotePath, // String? variable to store recorded file path
+                  //     () async {
+                  //   await recordVoiceNote(); // function to handle recording
+                  // }),
+                  buildVoiceNotePicker(
+                    "Voice Note",
+                    voiceNotePath,
+                    isRecording,
+                    isPlaying,
+                    () async => await recordVoiceNote(),
+                    () async => await playVoiceNote(),
+                  ),
+
                   const SizedBox(height: 30),
 
-                  TextFormField(
-                    controller: deliveryDateController,
-                    readOnly: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Delivery Date',
-                      suffixIcon: Icon(Icons.calendar_today),
-                    ),
-                    onTap: () async {
-                      FocusScope.of(context)
-                          .requestFocus(FocusNode()); // Close keyboard
-
-                      DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: deliveryDate ?? DateTime.now(),
-                        firstDate: DateTime(2000),
-                        lastDate: DateTime(2100),
-                      );
-
-                      if (pickedDate != null) {
-                        setState(() {
-                          deliveryDate = pickedDate;
-                          deliveryDateController.text =
-                              "${pickedDate.day.toString().padLeft(2, '0')}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.year}";
-                        });
-                      }
-                    },
+                  buildDateInputCard(
+                    'Delivery Date',
+                    deliveryDateController,
+                    context,
+                    initialDate: deliveryDate,
+                    isRequired: true,
                   ),
-                  TextFormField(
-                    controller: stampDateController,
 
-                    decoration: const InputDecoration(labelText: 'Stamp'),
-                    onChanged: (value) {
-                      setState(() {
-                        hasStamp = value;
-                      });
-                    },
+                  buildInputCard(
+                    'Stamp',
+                    Icons.tab, // or any relevant icon
+                    stampDateController,
+                    keyboardType: TextInputType.text,
+                    isRequired: false,
                   ),
+
+                  // TextFormField(
+                  //   controller: deliveryDateController,
+                  //   readOnly: true,
+                  //   decoration: const InputDecoration(
+                  //     labelText: 'Delivery Date',
+                  //     suffixIcon: Icon(Icons.calendar_today),
+                  //   ),
+                  //   onTap: () async {
+                  //     FocusScope.of(context)
+                  //         .requestFocus(FocusNode()); // Close keyboard
+
+                  //     DateTime? pickedDate = await showDatePicker(
+                  //       context: context,
+                  //       initialDate: deliveryDate ?? DateTime.now(),
+                  //       firstDate: DateTime(2000),
+                  //       lastDate: DateTime(2100),
+                  //     );
+
+                  //     if (pickedDate != null) {
+                  //       setState(() {
+                  //         deliveryDate = pickedDate;
+                  //         deliveryDateController.text =
+                  //             "${pickedDate.day.toString().padLeft(2, '0')}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.year}";
+                  //       });
+                  //     }
+                  //   },
+                  // ),
+                  // TextFormField(
+                  //   controller: stampDateController,
+                  //   decoration: const InputDecoration(labelText: 'Stamp'),
+                  //   onChanged: (value) {
+                  //     setState(() {
+                  //       hasStamp = value;
+                  //     });
+                  //   },
+                  // ),
                   SwitchListTile(
-                    title: const Text('HUID'),
+                    title: const Text('HUID?'),
                     value: hasHUid,
                     onChanged: (value) {
                       setState(() {
@@ -578,7 +1296,7 @@ class _OrderScreenState extends State<OrderScreen> {
                     },
                   ),
                   SwitchListTile(
-                    title: const Text('IGI'),
+                    title: const Text('IGI?'),
                     value: hasIGI,
                     onChanged: (value) {
                       setState(() {
@@ -588,7 +1306,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   ),
 
                   SwitchListTile(
-                    title: const Text('We Deliver Gold'),
+                    title: const Text('We Deliver Gold?'),
                     value: deliversGold,
                     onChanged: (value) {
                       setState(() {
@@ -598,7 +1316,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   ),
 
                   SwitchListTile(
-                    title: const Text('We Deliver Stone'),
+                    title: const Text('We Deliver Stone?'),
                     value: deliversStone,
                     onChanged: (value) {
                       setState(() {
@@ -608,7 +1326,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   ),
 
                   SwitchListTile(
-                    title: const Text('We Deliver Diamond'),
+                    title: const Text('We Deliver Diamond?'),
                     value: deliversDiamond,
                     onChanged: (value) {
                       setState(() {
@@ -692,12 +1410,13 @@ class _OrderScreenState extends State<OrderScreen> {
 
   Widget buildInputCard(
     String label,
-    IconData icon,
+    IconData? icon,
     TextEditingController controller, {
     TextInputType keyboardType = TextInputType.text,
     List<TextInputFormatter>? inputFormatters,
     bool isRequired = false,
   }) {
+    pcsController.text = "1"; // set initial value
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -715,6 +1434,57 @@ class _OrderScreenState extends State<OrderScreen> {
           labelText: label,
           border: InputBorder.none,
         ),
+        validator: isRequired
+            ? (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return '$label is required';
+                }
+                return null;
+              }
+            : null,
+      ),
+    );
+  }
+
+  Widget buildDateInputCard(
+    String label,
+    TextEditingController controller,
+    BuildContext context, {
+    DateTime? initialDate,
+    DateTime? firstDate,
+    DateTime? lastDate,
+    bool isRequired = false,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+      ),
+      child: TextFormField(
+        controller: controller,
+        readOnly: true,
+        decoration: InputDecoration(
+          labelText: label,
+          border: InputBorder.none,
+          suffixIcon: const Icon(Icons.calendar_today),
+        ),
+        onTap: () async {
+          FocusScope.of(context).requestFocus(FocusNode()); // Close keyboard
+          DateTime? pickedDate = await showDatePicker(
+            context: context,
+            initialDate: initialDate ?? DateTime.now(),
+            firstDate: firstDate ?? DateTime(2000),
+            lastDate: lastDate ?? DateTime(2100),
+          );
+
+          if (pickedDate != null) {
+            controller.text =
+                "${pickedDate.day.toString().padLeft(2, '0')}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.year}";
+          }
+        },
         validator: isRequired
             ? (value) {
                 if (value == null || value.trim().isEmpty) {
@@ -790,7 +1560,7 @@ class _OrderScreenState extends State<OrderScreen> {
           const SizedBox(height: 8),
           TextFormField(
             controller: controller,
-            maxLines: 5,
+            maxLines: 3,
             decoration:
                 const InputDecoration.collapsed(hintText: "Type here..."),
           ),
@@ -798,6 +1568,37 @@ class _OrderScreenState extends State<OrderScreen> {
       ),
     );
   }
+
+  // Widget buildVoiceNotePicker(
+  //     String label, String? recordedFilePath, VoidCallback onRecordPressed,
+  //     {bool isRecorded = false}) {
+  //   return Container(
+  //     margin: const EdgeInsets.only(bottom: 16),
+  //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       borderRadius: BorderRadius.circular(12),
+  //       boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+  //     ),
+  //     child: Row(
+  //       children: [
+  //         Icon(Icons.mic, color: Colors.deepPurple),
+  //         const SizedBox(width: 12),
+  //         Expanded(
+  //           child: Text(recordedFilePath != null
+  //               ? "Voice note recorded"
+  //               : "No voice note yet"),
+  //         ),
+  //         IconButton(
+  //           icon: Icon(
+  //               isRecorded ? Icons.play_arrow : Icons.fiber_manual_record,
+  //               color: Colors.deepPurple),
+  //           onPressed: onRecordPressed,
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget buildImagePicker(
       String label, File? image, VoidCallback onTap, String url) {

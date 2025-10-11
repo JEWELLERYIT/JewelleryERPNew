@@ -75,7 +75,6 @@ class _FilterScreenState extends State<FilterScreen> {
     // }
   }
 
-
   void showLogoutModal() {
     showDialog(
       context: context,
@@ -179,8 +178,7 @@ class _FilterScreenState extends State<FilterScreen> {
                 })
               },
             )
-          ]
-      ),
+          ]),
       body: loader
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
@@ -234,13 +232,30 @@ class _FilterScreenState extends State<FilterScreen> {
                     width: double
                         .infinity, // Make the line span the full width of its container
                   ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Work In Progress",
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
+                      ),
+                    ],
+                  ),
                   Card(
                     margin: const EdgeInsets.all(10),
                     child: ListTile(
                       title: const Text(
                         "All Products ",
                         style: TextStyle(
-                            fontSize: 18,color: Colors.deepOrange, fontWeight: FontWeight.bold),
+                            fontSize: 18,
+                            color: Colors.deepOrange,
+                            fontWeight: FontWeight.bold),
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                       onTap: () {
@@ -331,7 +346,9 @@ class _FilterScreenState extends State<FilterScreen> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => MaxWidthContainer(
-                            child: HomeDashBoard(keyName: key!="username"?key:"client", data: item[key]),
+                            child: HomeDashBoard(
+                                keyName: key != "username" ? key : "client",
+                                data: item[key]),
                           ),
                         ),
                       );

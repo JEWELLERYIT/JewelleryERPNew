@@ -14,7 +14,8 @@ class StoneOutstandingDetailsSecondScreen extends StatefulWidget {
   String keyName = "";
   String ssku = "";
 
-  StoneOutstandingDetailsSecondScreen({required this.keyName,required this.ssku});
+  StoneOutstandingDetailsSecondScreen(
+      {required this.keyName, required this.ssku});
 
   @override
   _StoneOutstandingDetailsSecondScreenState createState() =>
@@ -55,7 +56,7 @@ class _StoneOutstandingDetailsSecondScreenState
     };
 
     String response =
-        await constans.callApi(formData,StaticUrl.erp_clientstoneoutstanding);
+        await constans.callApi(formData, StaticUrl.erp_clientstoneoutstanding);
     Map<String, dynamic> responseData = json.decode(response);
 
     print("responseData['data'] --: $formData $response");
@@ -93,105 +94,68 @@ class _StoneOutstandingDetailsSecondScreenState
     color: Colors.black,
   );
 
-  Future<int> createCatalogHTML(BuildContext context, String clientName) async {
+  Future<void> createCatalogHTML(
+      BuildContext context, String clientName) async {
     balWt = 0;
     balAmt = 0;
-    String? generatedPdfFilePath;
     String currentDate = DateFormat('dd-MM-yyyy').format(DateTime.now());
 
     String list = "";
-
-    // <th>Date</th>
-    // <th>VR No</th>
-    // <th>Type</th>
-    // <th>In-Fine</th>
-    // <th>Out-Fine</th>
-    // <th>Bal Fine</th>
-    // <th>In-Amt</th>
-    // <th>Out-Amt</th>
-    // <th>Bal-Amt</th>
     for (var item in data) {
+      final inwt = double.tryParse(item['inwt'].toString()) ?? 0;
+      final outwt = double.tryParse(item['outwt'].toString()) ?? 0;
+      final inamt = double.tryParse(item['inamt'].toString()) ?? 0;
+      final outamt = double.tryParse(item['outamt'].toString()) ?? 0;
+
       list += """<tr>
-                <td>${constans.getDate(item['vrdate'])}</td>
-                <td>${item['vrno']}</td>
-                <td>${item['fot']}</td>
-                <td>${item['inwt']}</td>
-                <td>${item['outwt']}</td>
-                <td>${getBalWt((double.parse(item['inwt']) - double.parse(item['outwt'])))}</td>
-                <td>${item['inamt']}</td>
-                <td>${item['outamt']}</td>
-                <td>${getBalAmt((double.parse(item['inamt']) - double.parse(item['outamt']))).toString()}</td>
-            </tr>""";
+          <td>${constans.getDate(item['date'])}</td>
+          <td>${item['vrno']}</td>
+          <td>${item['vrtype']}</td>
+          <td>${inwt.toStringAsFixed(3)}</td>
+          <td>${outwt.toStringAsFixed(3)}</td>
+          <td>${getBalWt(inwt - outwt)}</td>
+          <td>${inamt.toStringAsFixed(2)}</td>
+          <td>${outamt.toStringAsFixed(2)}</td>
+          <td>${getBalAmt(inamt - outamt)}</td>
+      </tr>""";
     }
 
-    String finalHTML = """<!DOCTYPE html>
-<html lang="en">
+    String finalHTML = """
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        @page {
-            size: A4;
-            margin: 50px 20px; /* Add space for header */
-        }
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-.header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        .table th, .table td {
-            border: 1px solid rgba(0, 0, 0, 0.25);
-            text-align: center;
-            font-size: 12px;
-            padding: 5px;
-        }
-
-        thead {
-            display: table-header-group; /* Ensures the header is repeated on each page */
-        }
-
-        .page-break {
-            page-break-before: always; /* Forces a new page */
-        }
-    </style>
+  <meta charset="UTF-8">
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 1px solid #444; padding: 6px; font-size: 12px; text-align: center; }
+    th { background: #f0f0f0; }
+  </style>
 </head>
 <body>
-
-    <div class="header">
-        <h2>${clientName}</h2>
-        <h2>Date: $currentDate</h2>
-    </div>
-
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Date</th>
-                <th>VR No</th>
-                <th>Type</th>
-                <th>In-Fine</th>
-                <th>Out-Fine</th>
-                <th>Bal Fine</th>
-                <th>In-Amt</th>
-                <th>Out-Amt</th>
-                <th>Bal-Amt</th>
-            </tr>
-        </thead>
-        <tbody>
-            $list
-        </tbody>
-    </table>
-
+  <div class="header">
+    <h3>$clientName</h3>
+    <h3>Date: $currentDate</h3>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>VR No</th>
+        <th>Type</th>
+        <th>In-Fine</th>
+        <th>Out-Fine</th>
+        <th>Bal-Fine</th>
+        <th>In-Amt</th>
+        <th>Out-Amt</th>
+        <th>Bal-Amt</th>
+      </tr>
+    </thead>
+    <tbody>
+      $list
+    </tbody>
+  </table>
 </body>
 </html>
 """;
@@ -205,21 +169,18 @@ class _StoneOutstandingDetailsSecondScreenState
       targetName: clientName,
     );
 
-    generatedPdfFilePath = generatedPdfFile?.path;
+    final generatedPdfFilePath = generatedPdfFile?.path;
 
-    print("generatedPdfFilePath $generatedPdfFilePath");
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
+    if (generatedPdfFilePath != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
           builder: (context) => MaxWidthContainer(
-                child: PdfViewScreen(
-                  pathStr: generatedPdfFilePath!,
-                ),
-              )), // Implement HomeScreen
-    );
-
-    return 1;
+            child: PdfViewScreen(pathStr: generatedPdfFilePath),
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -258,123 +219,118 @@ class _StoneOutstandingDetailsSecondScreenState
             elevation: 0,
             // Optional: Removes shadow for a cleaner look
 
-            // actions: [
-            //   IconButton(
-            //     icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
-            //     onPressed: () => {createCatalogHTML(context, widget.keyName)},
-            //   )
-            // ]
-        ),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.picture_as_pdf, color: Colors.white),
+                onPressed: () => {createCatalogHTML(context, widget.keyName)},
+              )
+            ]),
       ),
       body: loader
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header Row
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    color: Colors.blueAccent,
-                    child: Row(
-                      children: [
-                        SizedBox(
-                            width: 120,
-                            child: headerText("Date", leftAlign: 1)),
-                        SizedBox(
-                            width: 80, child: headerText("Vrno", leftAlign: 1)),
-                        SizedBox(
-                            width: 80, child: headerText("Type", leftAlign: 1)),
-                        // Divider added here
-                        SizedBox(width: 100, child: headerText("In-Fine")),
-                        SizedBox(width: 100, child: headerText("Out-Fine")),
-                        SizedBox(width: 100, child: headerText("Bal-Fine")),
-                        // SizedBox(width: 100, child: headerText("In-Amt")),
-                        // SizedBox(width: 100, child: headerText("Out-Amt")),
-                        // SizedBox(width: 100, child: headerText("Bal-Amt")),
-                      ],
-                    ),
-                  ),
-
-                  // Data Rows with Vertical Scrolling
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: data.map((client) {
-                          return Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                  bottom:
-                                      BorderSide(color: Colors.grey.shade300)),
-                            ),
-                            child: Row(
-                              children: [
-                                SizedBox(
-                                    width: 120,
-                                    child: dataText(
-                                        constans
-                                            .getDate(client['date'])
-                                            .toString(),
-                                        leftAlign: 1)),
-                                SizedBox(
-                                    width: 80,
-                                    child:
-                                        dataText(client['vrno'], leftAlign: 1)),
-                                SizedBox(
-                                    width: 80,
-                                    child:
-                                        dataText(client['vrtype'], leftAlign: 1)),
-                                Container(
-                                    width: 1,
-                                    height: 60,
-                                    color: Colors.grey.shade300),
-                                SizedBox(
-                                    width: 100,
-                                    child: dataText(client['inwt'],
-                                        color: Colors.orange)),
-                                SizedBox(
-                                    width: 100,
-                                    child: dataText(client['outwt'],
-                                        color: Colors.orange)),
-                                SizedBox(
-                                    width: 100,
-                                    child: dataText(
-                                      getBalWt((double.parse(client['inwt']) -
-                                              double.parse(client['outwt'])))
-                                          .toString(),
-                                      color: Colors.orange,
-                                    )),
-                                // Container(
-                                //     width: 1,
-                                //     height: 60,
-                                //     color: Colors.grey.shade300),
-                                // SizedBox(
-                                //     width: 100,
-                                //     child: dataText(client['inamt'],
-                                //         color: Colors.indigo)),
-                                // SizedBox(
-                                //     width: 100,
-                                //     child: dataText(client['outamt'],
-                                //         color: Colors.indigo)),
-                                // SizedBox(
-                                //     width: 100,
-                                //     child: dataText(
-                                //       getBalAmt((double.parse(client['inamt']) -
-                                //               double.parse(client['outamt'])))
-                                //           .toString(),
-                                //       color: Colors.indigo,
-                                //     )),
-                              ],
-                            ),
-                          );
-                        }).toList(),
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey.shade400),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Header Row
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      color: Colors.blueAccent,
+                      child: Row(
+                        children: [
+                          _buildHeaderCell("Date", 120),
+                          _buildHeaderCell("Vrno", 80),
+                          _buildHeaderCell("Type", 80),
+                          _buildHeaderCell("In-Fine", 100),
+                          _buildHeaderCell("Out-Fine", 100),
+                          _buildHeaderCell("Bal-Fine", 100),
+                        ],
                       ),
                     ),
-                  ),
-                ],
+
+                    // Data Rows with vertical scrolling
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height -
+                          150, // adjust based on AppBar and header
+                      child: SingleChildScrollView(
+                        child: Column(
+                          children: data.map((client) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                border: Border(
+                                  bottom:
+                                      BorderSide(color: Colors.grey.shade300),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  _buildDataCell(
+                                      constans
+                                          .getDate(client['date'])
+                                          .toString(),
+                                      120),
+                                  _buildDataCell(client['vrno'], 80),
+                                  _buildDataCell(client['vrtype'], 80),
+                                  _buildDataCell(client['inwt'], 100,
+                                      color: Colors.orange),
+                                  _buildDataCell(client['outwt'], 100,
+                                      color: Colors.orange),
+                                  _buildDataCell(
+                                      getBalWt(double.parse(client['inwt']) -
+                                              double.parse(client['outwt']))
+                                          .toString(),
+                                      100,
+                                      color: Colors.orange),
+                                ],
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
+    );
+  }
+
+  Widget _buildHeaderCell(String text, double width) {
+    return Container(
+      width: width,
+      decoration: BoxDecoration(
+        border: Border(
+          right: BorderSide(color: Colors.grey.shade400),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      child: Text(
+        text,
+        style: headerStyle,
+        textAlign: TextAlign.center,
+      ),
+    );
+  }
+
+  Widget _buildDataCell(String text, double width, {Color? color}) {
+    return Container(
+      width: width,
+      decoration: BoxDecoration(
+        border: Border(
+          right: BorderSide(color: Colors.grey.shade300),
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 15),
+      child: Text(
+        text,
+        style: rowStyle.copyWith(color: color ?? Colors.black),
+        textAlign: TextAlign.center,
+      ),
     );
   }
 
