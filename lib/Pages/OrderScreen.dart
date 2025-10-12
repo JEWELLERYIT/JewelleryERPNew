@@ -311,6 +311,7 @@ class _OrderScreenState extends State<OrderScreen> {
     bool isPlaying,
     VoidCallback onRecordPressed,
     VoidCallback onPlayPressed,
+    VoidCallback onDeletePressed,
   ) {
     String displayText;
 
@@ -319,7 +320,7 @@ class _OrderScreenState extends State<OrderScreen> {
     } else if (recordedFilePath != null) {
       displayText = recordedFilePath.split('/').last; // show file name
     } else {
-      displayText = "No voice note yet";
+      displayText = "voice note ";
     }
 
     return Container(
@@ -328,24 +329,48 @@ class _OrderScreenState extends State<OrderScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 5),
+        ],
       ),
       child: Row(
         children: [
-          Icon(Icons.mic, color: Colors.deepPurple),
-          const SizedBox(width: 12),
-          Expanded(child: Text(displayText)),
-          IconButton(
-            icon: Icon(isRecording ? Icons.stop : Icons.fiber_manual_record,
-                color: Colors.deepPurple),
-            onPressed: onRecordPressed,
+          Expanded(
+            child: Text(
+              displayText,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
+
+          // Play Button (if recorded)
           if (!isRecording && recordedFilePath != null)
             IconButton(
-              icon: Icon(isPlaying ? Icons.stop : Icons.play_arrow,
-                  color: Colors.deepPurple),
+              icon: Icon(
+                isPlaying ? Icons.stop : Icons.play_arrow,
+                color: Colors.deepPurple,
+              ),
+              tooltip: isPlaying ? "Stop" : "Play",
               onPressed: onPlayPressed,
             ),
+
+          // Delete Button (if recorded)
+          if (!isRecording && recordedFilePath != null)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: Colors.redAccent),
+              tooltip: "Delete",
+              onPressed: onDeletePressed,
+            ),
+
+          // Mic Button (always last)
+          IconButton(
+            icon: Icon(
+              isRecording ? Icons.stop_circle : Icons.mic,
+              color: isRecording ? Colors.redAccent : Colors.deepPurple,
+            ),
+            tooltip: isRecording ? "Stop Recording" : "Record",
+            onPressed: onRecordPressed,
+          ),
         ],
       ),
     );
@@ -744,6 +769,14 @@ class _OrderScreenState extends State<OrderScreen> {
                     isPlaying,
                     () async => await recordVoiceNote(),
                     () async => await playVoiceNote(),
+                    () {
+                      // 🗑️ Delete action logic
+                      setState(() {
+                        voiceNotePath = null;
+                        isPlaying = false;
+                        isRecording = false;
+                      });
+                    },
                   ),
 
                   const SizedBox(height: 30),
