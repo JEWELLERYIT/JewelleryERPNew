@@ -54,48 +54,34 @@ class _OrderScreenState extends State<OrderScreen> {
     await recorder.openRecorder();
   }
 
-  // Future<void> playVoiceNote() async {
-  //   if (voiceNotePath == null) return;
-
-  //   if (player.isOpen == true) {
-  //     await player.openPlayer(); // ensure player is open
-  //   }
-
-  //   if (!isPlaying) {
-  //     await player.startPlayer(
-  //       fromURI: voiceNotePath,
-  //       codec: Codec.aacMP4,
-  //       whenFinished: () {
-  //         setState(() => isPlaying = false);
-  //       },
-  //     );
-  //     setState(() => isPlaying = true);
-  //   } else {
-  //     await player.stopPlayer();
-  //     setState(() => isPlaying = false);
-  //   }
-  // }
   Future<void> playVoiceNote() async {
-    if (voiceNotePath == null) return;
-
-    // Open player if not already open
-    bool isPlayerOpen = await player.isOpen(); // await the Future
-    if (!isPlayerOpen) {
-      await player.openPlayer();
+    if (voiceNotePath == null || voiceNotePath!.isEmpty) {
+      print("❌ No voice note path found");
+      return;
     }
 
-    if (!isPlaying) {
-      await player.startPlayer(
-        fromURI: voiceNotePath,
-        codec: Codec.aacMP4,
-        whenFinished: () {
-          setState(() => isPlaying = false);
-        },
-      );
-      setState(() => isPlaying = true);
-    } else {
-      await player.stopPlayer();
-      setState(() => isPlaying = false);
+    print("🎧 Playing from: $voiceNotePath");
+
+    try {
+      if (!await player.isOpen()) {
+        await player.openPlayer();
+      }
+
+      if (!isPlaying) {
+        await player.startPlayer(
+          fromURI: voiceNotePath!,
+          codec: Codec.aacADTS, // better for raw .aac files
+          whenFinished: () {
+            setState(() => isPlaying = false);
+          },
+        );
+        setState(() => isPlaying = true);
+      } else {
+        await player.stopPlayer();
+        setState(() => isPlaying = false);
+      }
+    } catch (e) {
+      print("🎤 Error playing audio: $e");
     }
   }
 
@@ -113,13 +99,24 @@ class _OrderScreenState extends State<OrderScreen> {
     stoneDescriptionController.text = data['stonedesc']?.toString() ?? '';
     itemDescriptionController.text = data['itemdesc']?.toString() ?? '';
     enamelColorController.text = data['enamalcolor']?.toString() ?? '';
+
+    // Add your API base URL here:
+    const String baseUrl = "https://www.digicat.in/webroot/RiteshApi/";
+
     image1Url = "${data['image1link']!}" ?? '';
     image2Url = "${data['image2link']!}" ?? '';
+
+    voiceNotePath =
+        data['vnotelink'] != null && data['vnotelink'].toString().isNotEmpty
+            ? "$baseUrl${data['vnotelink']}"
+            : '';
+
+    print("Voice note URL: $voiceNotePath");
 
     final String? deldateString = data['deldate']?.toString();
 
     setState(() {
-      hasStamp = data['stamp']?.toString(); // null-safe
+      hasStamp = data['stamp']?.toString();
       stampDateController.text = data['stamp']?.toString() ?? '';
       hasHUid = data['huid'] == "true";
       hasIGI = data['igi'] == "true";
@@ -134,15 +131,9 @@ class _OrderScreenState extends State<OrderScreen> {
           : null;
 
       final DateFormat formatter = DateFormat('dd-MM-yyyy');
-
-      if (deliveryDate != null) {
-        deliveryDateController.text = formatter.format(deliveryDate!);
-      } else {
-        deliveryDateController.text = '';
-      }
+      deliveryDateController.text =
+          deliveryDate != null ? formatter.format(deliveryDate!) : '';
     });
-
-    print("hasStamp ${data['stamp']?.toString()}");
   }
 
   Future<String> getVoiceNotePath() async {
@@ -151,43 +142,6 @@ class _OrderScreenState extends State<OrderScreen> {
         '${directory.path}/voice_note_${DateTime.now().millisecondsSinceEpoch}.aac';
     return path;
   }
-
-  // Future<void> playVoiceNote() async {
-  //   if (voiceNotePath == null) return;
-
-  //   if (!isPlaying) {
-  //     await player.startPlayer(
-  //       fromURI: voiceNotePath,
-  //       codec: Codec.aacMP4,
-  //       whenFinished: () {
-  //         setState(() => isPlaying = false);
-  //       },
-  //     );
-  //     setState(() => isPlaying = true);
-  //   } else {
-  //     await player.stopPlayer();
-  //     setState(() => isPlaying = false);
-  //   }
-  // }
-
-  // Future<void> recordVoiceNote() async {
-  //   // Request microphone permission
-  //   var micStatus = await Permission.microphone.request();
-  //   if (!micStatus.isGranted) return;
-
-  //   if (!isRecording) {
-  //     // Start recording
-  //     await recorder.openRecorder();
-  //     voiceNotePath = await getVoiceNotePath(); // safe path
-  //     await recorder.startRecorder(toFile: voiceNotePath);
-  //     isRecording = true;
-  //   } else {
-  //     // Stop recording
-  //     await recorder.stopRecorder();
-  //     isRecording = false;
-  //     setState(() {}); // update UI to show recorded file
-  //   }
-  // }
 
   String? _safeSelect(List<String> list, String? value) {
     if (value == null) return null;
@@ -440,133 +394,6 @@ class _OrderScreenState extends State<OrderScreen> {
     }
   }
 
-// ---------------------- UPLOAD VOICE NOTE ----------------------
-  // Future<String> uploadVoiceNote(
-  //     Map<String, dynamic> userData, File voiceFile) async {
-  //   var request = http.MultipartRequest(
-  //     'POST',
-  //     Uri.parse('https://www.digicat.in/webroot/RiteshApi/erp_orderimage.php'),
-  //   );
-
-  //   request.fields['companyid'] = userData['companyid'];
-
-  //   request.files.add(
-  //     await http.MultipartFile.fromPath(
-  //       'vnotelink', // backend expects this field
-  //       voiceFile.path,
-  //       contentType: MediaType('audio', 'aac'),
-  //     ),
-  //   );
-
-  //   var response = await request.send();
-
-  //   if (response.statusCode == 200) {
-  //     final responseBody = await response.stream.bytesToString();
-  //     final decodedJson = json.decode(responseBody);
-
-  //     // If backend returns path, use it
-  //     String uploadedPath = decodedJson["file"] ?? "";
-
-  //     // If backend does not return path, construct relative path manually
-  //     if (uploadedPath.isEmpty) {
-  //       uploadedPath = "uploads/erp/${userData['companyid']}/order/" +
-  //           voiceFile.path.split('/').last;
-  //     }
-
-  //     print("Voice note uploaded to: $uploadedPath");
-  //     return uploadedPath;
-  //   } else {
-  //     print("Voice note upload failed: ${response.statusCode}");
-  //     return "";
-  //   }
-  // }
-  // Future<String> uploadVoiceNote(
-  //     Map<String, dynamic> userData, File voiceFile) async {
-  //   var request = http.MultipartRequest(
-  //     'POST',
-  //     Uri.parse('https://www.digicat.in/webroot/RiteshApi/erp_orderaudio.php'),
-  //   );
-
-  //   // Add company ID field
-  //   request.fields['companyid'] = userData['companyid'];
-
-  //   // Attach the voice note file
-  //   request.files.add(
-  //     await http.MultipartFile.fromPath(
-  //       'vnotelink', // name of the field in backend
-  //       voiceFile.path,
-  //       contentType: MediaType('audio', 'aac'), // optional but recommended
-  //     ),
-  //   );
-
-  //   // Send request
-  //   var response = await request.send();
-
-  //   if (response.statusCode == 200) {
-  //     print(
-  //         "====================================================Success ho gya bhai${response.s}");
-  //     final responseBody = await response.stream.bytesToString();
-  //     final decodedJson = json.decode(responseBody);
-
-  //     // Return file path from backend if provided, else empty string
-  //     return decodedJson["file"] ?? "";
-  //   } else {
-  //     print("Voice note upload failed: ${response.statusCode}");
-  //     return "";
-  //   }
-  // }
-  // Future<String> uploadVoiceNote(
-  //     Map<String, dynamic> userData, File voiceFile) async {
-  //   try {
-  //     // Create multipart request (same endpoint as images)
-  //     var request = http.MultipartRequest(
-  //       'POST',
-  //       Uri.parse(
-  //           'https://www.digicat.in/webroot/RiteshApi/erp_orderimage.php'),
-  //     );
-
-  //     // Add company ID field
-  //     request.fields['companyid'] = userData['companyid'];
-
-  //     // Attach voice note file
-  //     request.files.add(await http.MultipartFile.fromPath(
-  //       'vnotelink', // use 'image' like image upload, backend may be expecting this
-  //       voiceFile.path,
-  //       contentType: MediaType('audio', 'aac'), // specify audio type
-  //     ));
-
-  //     // Debug info
-  //     print("Preparing to upload voice note:");
-  //     print("File path: ${voiceFile.path}");
-  //     print("File size: ${await voiceFile.length()} bytes");
-  //     print("MultipartFile prepared: ${voiceFile.path.split('/').last}");
-  //     print("Request fields: ${request.fields}");
-  //     print("Number of files attached: ${request.files.length}");
-
-  //     // Send request
-  //     var response = await request.send();
-  //     final responseBody = await response.stream.bytesToString();
-
-  //     print("Response status: ${response.statusCode}");
-  //     print("Raw response body: $responseBody");
-
-  //     final decodedJson = json.decode(responseBody);
-  //     print("Decoded JSON: $decodedJson");
-
-  //     // Return file path from backend if provided, else construct manually
-  //     String uploadedPath = decodedJson["file"] ?? "";
-  //     if (uploadedPath.isEmpty) {
-  //       uploadedPath = "uploads/erp/${userData['companyid']}/order/" +
-  //           voiceFile.path.split('/').last;
-  //       print("Voice note path constructed manually: $uploadedPath");
-  //     }
-
-  //     return uploadedPath;
-  //   } catch (e) {
-  //     print("Voice note upload exception: $e");
-  //     return "";
-  //   }
-  // }
   Future<String> uploadVoiceNote(
       Map<String, dynamic> userData, File voiceFile) async {
     try {
@@ -761,310 +588,6 @@ class _OrderScreenState extends State<OrderScreen> {
     });
   }
 
-  // Future<String> uploadVoiceNote(
-  //     Map<String, dynamic> userData, File voiceFile) async {
-  //   var request = http.MultipartRequest(
-  //     'POST',
-  //     Uri.parse('https://www.digicat.in/webroot/RiteshApi/erp_orderimage.php'),
-  //   );
-
-  //   // Add company ID field
-  //   request.fields['companyid'] = userData['companyid'];
-
-  //   // Attach voice note file
-  //   request.files.add(
-  //     await http.MultipartFile.fromPath(
-  //       'vnotelink', // backend expects this field
-  //       voiceFile.path,
-  //       contentType: MediaType('audio', 'aac'), // optional but recommended
-  //     ),
-  //   );
-
-  //   var response = await request.send();
-
-  //   if (response.statusCode == 200) {
-  //     print(
-  //         "====================================================Success ho gya bhai");
-  //     print(voiceFile.path);
-  //     final responseBody = await response.stream.bytesToString();
-  //     final decodedJson = json.decode(responseBody);
-
-  //     // Backend should return uploaded file path
-  //     return decodedJson["file"] ?? "";
-  //   } else {
-  //     print("Voice note upload failed: ${response.statusCode}");
-  //     return "";
-  //   }
-  // }
-
-  // Future<void> uploadForm(
-  //     Map<String, dynamic> userData, String image1Path, String image2Path,
-  //     [String? voiceNotePath]) async {
-  //   final now = DateTime.now();
-  //   final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(now);
-
-  //   var formData = {
-  //     "orderref": orderRefController.text,
-  //     "deldate": deliveryDate, // make sure deliveryDate is not null
-  //     "stamp": hasStamp,
-  //     "huid": hasHUid,
-  //     "igi": hasIGI,
-  //     "isgold": deliversGold,
-  //     "isstone": deliversStone,
-  //     "isdiamond": deliversDiamond,
-  //     "item": selectedItem,
-  //     "metal": selectedMetal,
-  //     "color": selectedColor,
-  //     "size": sizeController.text,
-  //     "refsku": refSKUController.text,
-  //     "cref": cRefController.text,
-  //     "enamalcolor": enamelColorController.text,
-  //     "rhodium": rhodiumController.text,
-  //     "findings": selectedFindings,
-  //     "plating": selectedPlating,
-  //     "stonedesc": stoneDescriptionController.text,
-  //     "itemdesc": itemDescriptionController.text,
-  //     "image1link": image1Path,
-  //     "image2link": image2Path,
-  //     "vnotelink": voiceNotePath ?? "",
-  //     "vrdate": formattedDate,
-  //     "pcs": pcsController.text.isEmpty ? "1" : pcsController.text,
-  //     "grosswt": grossWTController.text.isEmpty ? "0" : grossWTController.text,
-  //   };
-
-  //   // Include voice note only if it exists
-  //   // if (voiceNotePath != null && voiceNotePath.isNotEmpty) {
-  //   //   formData["vnotelink"] = voiceNotePath;
-  //   // }
-
-  //   if (widget.data.containsKey('id') &&
-  //       widget.data['id'].toString().isNotEmpty) {
-  //     formData['id'] = widget.data['id'];
-  //     formData['edit'] = "1";
-  //   } else {
-  //     formData['add'] = "1";
-  //     formData['companyid'] = userData['companyid'];
-  //     formData["clouduserid"] = userData['username'];
-  //     formData["clientname"] = "";
-  //   }
-
-  //   print('formData Request $formData');
-
-  //   String response = await constans.callApi(
-  //       formData, "https://www.digicat.in/webroot/RiteshApi/erp_order.php");
-
-  //   final Map<String, dynamic> jsonResponse = json.decode(response);
-  //   print("API Request : $response , $jsonResponse");
-
-  //   if (jsonResponse["response"] == true &&
-  //       jsonResponse["status_code"] == 200 &&
-  //       jsonResponse["data"]?["new_id"] != 0) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text("Order Form Submitted Successfully")),
-  //     );
-  //   } else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text("Order Submission Failed")),
-  //     );
-  //   }
-  // }
-
-  // void submitForm() async {
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-
-  //   String? userDataStr = await Constans().getData(StaticConstant.userData);
-  //   final userData = jsonDecode(userDataStr!);
-
-  //   String image1Path = "";
-  //   String image2Path = "";
-  //   String voicePath = "";
-
-  //   if (imageFromGallery != null) {
-  //     image1Path = await uploadImage(userData, imageFromGallery!);
-  //   } else {
-  //     image1Path = image1Url;
-  //   }
-
-  //   if (imageFromCamera != null) {
-  //     image2Path = await uploadImage(userData, imageFromCamera!);
-  //   } else {
-  //     image2Path = image2Url;
-  //   }
-
-  //   // Upload voice note if it exists
-  //   if (voiceNotePath != null && File(voiceNotePath!).existsSync()) {
-  //     File voiceFile = File(voiceNotePath!);
-  //     voicePath = await uploadVoiceNote(userData, voiceFile);
-  //   }
-
-  //   await uploadForm(userData, image1Path, image2Path, voicePath);
-
-  //   // Reset form
-  //   _formKey.currentState!.reset();
-  //   orderRefController.clear();
-  //   sizeController.clear();
-  //   refSKUController.clear();
-  //   cRefController.clear();
-  //   rhodiumController.clear();
-  //   pcsController.clear();
-  //   grossWTController.clear();
-  //   stoneDescriptionController.clear();
-  //   itemDescriptionController.clear();
-  //   deliveryDateController.clear();
-  //   enamelColorController.clear();
-
-  //   imageFromGallery = null;
-  //   imageFromCamera = null;
-  //   voiceNotePath = null;
-
-  //   setState(() {
-  //     selectedItem = null;
-  //     selectedMetal = null;
-  //     selectedColor = null;
-  //     selectedPlating = null;
-  //     selectedFindings = null;
-  //     deliveryDate = null;
-
-  //     hasStamp = "";
-  //     hasHUid = false;
-  //     hasIGI = false;
-  //     deliversGold = false;
-  //     deliversStone = false;
-  //     deliversDiamond = false;
-
-  //     _isLoading = false;
-  //   });
-  // }
-
-  // Future<void> uploadForm(Map<String, dynamic> userData, String image1Path,
-  //     String image2Path) async {
-  //   final now = DateTime.now();
-  //   final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(now);
-  //   var formData = {
-  //     "orderref": orderRefController.text,
-  //     "deldate": deliveryDate,
-  //     "stamp": hasStamp,
-  //     "huid": hasHUid,
-  //     "igi": hasIGI,
-  //     "isgold": deliversGold,
-  //     "isstone": deliversStone,
-  //     "isdiamond": deliversDiamond,
-  //     "item": selectedItem,
-  //     "metal": selectedMetal,
-  //     "color": selectedColor,
-  //     "size": sizeController.text,
-  //     "refsku": refSKUController.text,
-  //     "cref": cRefController.text,
-  //     "enamalcolor": enamelColorController.text,
-  //     "rhodium": rhodiumController.text,
-  //     "findings": selectedFindings,
-  //     "plating": selectedPlating,
-  //     "stonedesc": stoneDescriptionController.text,
-  //     "itemdesc": itemDescriptionController.text,
-  //     "image1link": image1Path,
-  //     "image2link": image2Path,
-  //     "vrdate": formattedDate,
-  //     "pcs": pcsController.text == "" ? "1" : pcsController.text,
-  //     "grosswt": grossWTController.text == "" ? "0" : grossWTController.text,
-  //   };
-
-  //   if (widget.data.containsKey('id') &&
-  //       widget.data['id'].toString().isNotEmpty) {
-  //     formData['id'] = widget.data['id'];
-  //     formData['edit'] = "1";
-  //   } else {
-  //     formData['add'] = "1";
-  //     formData['companyid'] = userData['companyid'];
-  //     formData["clouduserid"] = userData['username'];
-  //     formData["clientname"] = "";
-  //   }
-
-  //   print('formData Request $formData');
-
-  //   String response = await constans.callApi(
-  //       formData, "https://www.digicat.in/webroot/RiteshApi/erp_order.php");
-
-  //   final Map<String, dynamic> jsonResponse = json.decode(response);
-  //   print("API Request : $response , $jsonResponse");
-
-  //   if (jsonResponse["response"] == true &&
-  //       jsonResponse["status_code"] == 200 &&
-  //       jsonResponse["data"]?["new_id"] != 0) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text("Order Form Submitted Successfully")),
-  //     );
-  //   } else {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       const SnackBar(content: Text("Order Submission Failed")),
-  //     );
-  //   }
-  // }
-
-  // void submitForm() async {
-  //   // setState(() {
-  //   //   _isLoading = true;
-  //   // });
-
-  //   String? userData = await Constans().getData(StaticConstant.userData);
-
-  //   String image1Path = "";
-  //   String image2Path = "";
-
-  //   if (imageFromGallery != null) {
-  //     image1Path = await uploadImage(jsonDecode(userData!), imageFromGallery!);
-  //   } else {
-  //     image1Path = image1Url;
-  //   }
-  //   if (imageFromCamera != null) {
-  //     image2Path = await uploadImage(jsonDecode(userData!), imageFromCamera!);
-  //   } else {
-  //     image2Path = image2Url;
-  //   }
-  //   uploadForm(jsonDecode(userData!), image1Path, image2Path);
-
-  //   setState(() {
-  //     _formKey.currentState!.reset();
-  //     orderRefController.clear();
-  //     // itemController.clear();
-  //     // metalController.clear();
-  //     // colorController.clear();
-  //     sizeController.clear();
-  //     refSKUController.clear();
-  //     cRefController.clear();
-  //     // platingController.clear();
-  //     rhodiumController.clear();
-  //     // findingsController.clear();
-  //     pcsController.clear();
-  //     grossWTController.clear();
-  //     stoneDescriptionController.clear();
-  //     itemDescriptionController.clear();
-  //     deliveryDateController.clear();
-
-  //     // Optionally reset image state too
-  //     imageFromGallery = null;
-  //     imageFromCamera = null;
-  //     _isLoading = false;
-  //   });
-
-  //   setState(() {
-  //     selectedItem = null;
-  //     selectedMetal = null;
-  //     selectedColor = null;
-  //     selectedPlating = null;
-  //     selectedFindings = null;
-  //     deliveryDate = null;
-
-  //     hasStamp = "";
-  //     hasHUid = false;
-  //     hasIGI = false;
-  //     deliversGold = false;
-  //     deliversStone = false;
-  //     deliversDiamond = false;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     final jobno = widget.data['jobno'];
@@ -1206,23 +729,14 @@ class _OrderScreenState extends State<OrderScreen> {
                   buildCommentBox(
                       "Item description", itemDescriptionController),
                   sectionTitle("Images"),
-                  // buildImagePicker("Image 1", imageFromGallery,
-                  //     () => pickImage(ImageSource.gallery, false), image1Url),
-                  // const SizedBox(height: 16),
-                  // buildImagePicker("Image 2", imageFromCamera,
-                  //     () => pickImage(ImageSource.gallery, true), image2Url),
-                  // const SizedBox(height: 30),
+
                   buildImagePicker("Image 1", imageFromGallery,
                       () => pickImage(ImageSource.gallery, false), image1Url),
                   const SizedBox(height: 16),
                   buildImagePicker("Image 2", imageFromCamera,
                       () => pickImage(ImageSource.gallery, true), image2Url),
                   const SizedBox(height: 16),
-                  // buildVoiceNotePicker("Voice Note",
-                  //     voiceNotePath, // String? variable to store recorded file path
-                  //     () async {
-                  //   await recordVoiceNote(); // function to handle recording
-                  // }),
+
                   buildVoiceNotePicker(
                     "Voice Note",
                     voiceNotePath,
@@ -1250,42 +764,6 @@ class _OrderScreenState extends State<OrderScreen> {
                     isRequired: false,
                   ),
 
-                  // TextFormField(
-                  //   controller: deliveryDateController,
-                  //   readOnly: true,
-                  //   decoration: const InputDecoration(
-                  //     labelText: 'Delivery Date',
-                  //     suffixIcon: Icon(Icons.calendar_today),
-                  //   ),
-                  //   onTap: () async {
-                  //     FocusScope.of(context)
-                  //         .requestFocus(FocusNode()); // Close keyboard
-
-                  //     DateTime? pickedDate = await showDatePicker(
-                  //       context: context,
-                  //       initialDate: deliveryDate ?? DateTime.now(),
-                  //       firstDate: DateTime(2000),
-                  //       lastDate: DateTime(2100),
-                  //     );
-
-                  //     if (pickedDate != null) {
-                  //       setState(() {
-                  //         deliveryDate = pickedDate;
-                  //         deliveryDateController.text =
-                  //             "${pickedDate.day.toString().padLeft(2, '0')}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.year}";
-                  //       });
-                  //     }
-                  //   },
-                  // ),
-                  // TextFormField(
-                  //   controller: stampDateController,
-                  //   decoration: const InputDecoration(labelText: 'Stamp'),
-                  //   onChanged: (value) {
-                  //     setState(() {
-                  //       hasStamp = value;
-                  //     });
-                  //   },
-                  // ),
                   SwitchListTile(
                     title: const Text('HUID?'),
                     value: hasHUid,
@@ -1568,37 +1046,6 @@ class _OrderScreenState extends State<OrderScreen> {
       ),
     );
   }
-
-  // Widget buildVoiceNotePicker(
-  //     String label, String? recordedFilePath, VoidCallback onRecordPressed,
-  //     {bool isRecorded = false}) {
-  //   return Container(
-  //     margin: const EdgeInsets.only(bottom: 16),
-  //     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       borderRadius: BorderRadius.circular(12),
-  //       boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
-  //     ),
-  //     child: Row(
-  //       children: [
-  //         Icon(Icons.mic, color: Colors.deepPurple),
-  //         const SizedBox(width: 12),
-  //         Expanded(
-  //           child: Text(recordedFilePath != null
-  //               ? "Voice note recorded"
-  //               : "No voice note yet"),
-  //         ),
-  //         IconButton(
-  //           icon: Icon(
-  //               isRecorded ? Icons.play_arrow : Icons.fiber_manual_record,
-  //               color: Colors.deepPurple),
-  //           onPressed: onRecordPressed,
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget buildImagePicker(
       String label, File? image, VoidCallback onTap, String url) {
