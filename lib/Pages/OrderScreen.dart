@@ -2,10 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+
+import 'package:http_parser/http_parser.dart';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -28,13 +30,12 @@ class _OrderScreenState extends State<OrderScreen> {
   String image2Url = "";
 
   bool _isLoading = false;
-  bool isRecording = false;
-  bool isPlaying = false;
-  String? voiceNotePath;
-
   FlutterSoundRecorder recorder = FlutterSoundRecorder();
   FlutterSoundPlayer player = FlutterSoundPlayer();
 
+  bool isRecording = false;
+  bool isPlaying = false;
+  String? voiceNotePath;
   @override
   void initState() {
     super.initState();
@@ -84,6 +85,16 @@ class _OrderScreenState extends State<OrderScreen> {
       print("🎤 Error playing audio: $e");
     }
   }
+  // @override
+  // void initState() {
+  //   super.initState();
+
+  //   if (widget.data.isNotEmpty) {
+  //     initData();
+  //   }
+
+  //   getAllOptions();
+  // }
 
   void initData() {
     final data = widget.data;
@@ -99,31 +110,26 @@ class _OrderScreenState extends State<OrderScreen> {
     stoneDescriptionController.text = data['stonedesc']?.toString() ?? '';
     itemDescriptionController.text = data['itemdesc']?.toString() ?? '';
     enamelColorController.text = data['enamalcolor']?.toString() ?? '';
-
-    // Add your API base URL here:
-    const String baseUrl = "https://www.digicat.in/webroot/RiteshApi/";
-
     image1Url = "${data['image1link']!}" ?? '';
     image2Url = "${data['image2link']!}" ?? '';
 
     voiceNotePath =
         data['vnotelink'] != null && data['vnotelink'].toString().isNotEmpty
-            ? "$baseUrl${data['vnotelink']}"
+            ? "${data['vnotelink']}"
             : '';
 
     print("Voice note URL: $voiceNotePath");
-
     final String? deldateString = data['deldate']?.toString();
 
     setState(() {
-      hasStamp = data['stamp']?.toString();
+      hasStamp = data['stamp']?.toString(); // null-safe
       stampDateController.text = data['stamp']?.toString() ?? '';
       hasHUid = data['huid'] == "true";
       hasIGI = data['igi'] == "true";
       deliversGold = data['isgold'] == "true";
       deliversStone = data['isstone'] == "true";
       deliversDiamond = data['isdiamond'] == "true";
-
+      selectedPlating = data['rhodium'];
       deliveryDate = (deldateString != null &&
               deldateString.isNotEmpty &&
               deldateString != '0000-00-00')
@@ -131,9 +137,15 @@ class _OrderScreenState extends State<OrderScreen> {
           : null;
 
       final DateFormat formatter = DateFormat('dd-MM-yyyy');
-      deliveryDateController.text =
-          deliveryDate != null ? formatter.format(deliveryDate!) : '';
+
+      if (deliveryDate != null) {
+        deliveryDateController.text = formatter.format(deliveryDate!);
+      } else {
+        deliveryDateController.text = '';
+      }
     });
+
+    print("hasStamp ${data['stamp']?.toString()}");
   }
 
   Future<String> getVoiceNotePath() async {
@@ -205,7 +217,7 @@ class _OrderScreenState extends State<OrderScreen> {
         final metal = data['metal']?.toString();
         final color = data['color']?.toString();
         final findings = data['findings']?.toString();
-        final plating = data['plating']?.toString();
+        final plating = data['rhodium']?.toString();
 
         setState(() {
           selectedItem = _safeSelect(itemList, item);
@@ -244,7 +256,7 @@ class _OrderScreenState extends State<OrderScreen> {
   final TextEditingController rhodiumController = TextEditingController();
 
   // final TextEditingController findingsController = TextEditingController();
-  final TextEditingController pcsController = TextEditingController();
+  final TextEditingController pcsController = TextEditingController(text: "1");
   final TextEditingController grossWTController = TextEditingController();
   final TextEditingController stoneDescriptionController =
       TextEditingController();
@@ -279,6 +291,11 @@ class _OrderScreenState extends State<OrderScreen> {
   final TextEditingController deliveryDateController = TextEditingController();
   final TextEditingController stampDateController = TextEditingController();
 
+  // @override
+  // void dispose() {
+  //   deliveryDateController.dispose();
+  //   super.dispose();
+  // }
   @override
   void dispose() {
     recorder.closeRecorder();
@@ -472,19 +489,17 @@ class _OrderScreenState extends State<OrderScreen> {
     }
   }
 
-// ---------------------- UPLOAD FORM ----------------------
   Future<void> uploadForm(
     Map<String, dynamic> userData,
     String image1Path,
-    String image2Path, [
+    String image2Path,
     String? voiceNotePath,
-  ]) async {
+  ) async {
     final now = DateTime.now();
     final formattedDate = DateFormat('yyyy-MM-dd HH:mm').format(now);
-
     var formData = {
       "orderref": orderRefController.text,
-      "deldate": deliveryDate ?? "",
+      "deldate": deliveryDate,
       "stamp": hasStamp,
       "huid": hasHUid,
       "igi": hasIGI,
@@ -498,7 +513,7 @@ class _OrderScreenState extends State<OrderScreen> {
       "refsku": refSKUController.text,
       "cref": cRefController.text,
       "enamalcolor": enamelColorController.text,
-      "rhodium": rhodiumController.text,
+      "rhodium": selectedPlating,
       "findings": selectedFindings,
       "plating": selectedPlating,
       "stonedesc": stoneDescriptionController.text,
@@ -507,9 +522,10 @@ class _OrderScreenState extends State<OrderScreen> {
       "image2link": image2Path,
       "vnotelink": voiceNotePath ?? "",
       "vrdate": formattedDate,
-      "pcs": pcsController.text.isEmpty ? "1" : pcsController.text,
-      "grosswt": grossWTController.text.isEmpty ? "0" : grossWTController.text,
+      "pcs": pcsController.text == "" ? "1" : pcsController.text,
+      "grosswt": grossWTController.text == "" ? "0" : grossWTController.text,
     };
+    print('formData Request $formData');
 
     if (widget.data.containsKey('id') &&
         widget.data['id'].toString().isNotEmpty) {
@@ -543,56 +559,57 @@ class _OrderScreenState extends State<OrderScreen> {
     }
   }
 
-// ---------------------- SUBMIT FORM ----------------------
   void submitForm() async {
-    setState(() {
-      _isLoading = true;
-    });
+    // setState(() {
+    //   _isLoading = true;
+    // });
 
-    String? userDataStr = await Constans().getData(StaticConstant.userData);
-    final userData = jsonDecode(userDataStr!);
+    String? userData = await Constans().getData(StaticConstant.userData);
 
     String image1Path = "";
     String image2Path = "";
     String voicePath = "";
 
     if (imageFromGallery != null) {
-      image1Path = await uploadImage(userData, imageFromGallery!);
+      image1Path = await uploadImage(jsonDecode(userData!), imageFromGallery!);
     } else {
       image1Path = image1Url;
     }
-
     if (imageFromCamera != null) {
-      image2Path = await uploadImage(userData, imageFromCamera!);
+      image2Path = await uploadImage(jsonDecode(userData!), imageFromCamera!);
     } else {
       image2Path = image2Url;
     }
-
-    // Upload voice note if it exists
     if (voiceNotePath != null && File(voiceNotePath!).existsSync()) {
       File voiceFile = File(voiceNotePath!);
-      voicePath = await uploadVoiceNote(userData, voiceFile);
+      voicePath = await uploadVoiceNote(jsonDecode(userData!), voiceFile);
     }
+    uploadForm(jsonDecode(userData!), image1Path, image2Path, voiceNotePath);
 
-    await uploadForm(userData, image1Path, image2Path, voicePath);
+    setState(() {
+      _formKey.currentState!.reset();
+      orderRefController.clear();
+      // itemController.clear();
+      // metalController.clear();
+      // colorController.clear();
+      sizeController.clear();
+      refSKUController.clear();
+      cRefController.clear();
+      // platingController.clear();
+      rhodiumController.clear();
+      // findingsController.clear();
+      pcsController.clear();
+      grossWTController.clear();
+      stoneDescriptionController.clear();
+      itemDescriptionController.clear();
+      deliveryDateController.clear();
 
-    // Reset form
-    _formKey.currentState!.reset();
-    orderRefController.clear();
-    sizeController.clear();
-    refSKUController.clear();
-    cRefController.clear();
-    rhodiumController.clear();
-    pcsController.clear();
-    grossWTController.clear();
-    stoneDescriptionController.clear();
-    itemDescriptionController.clear();
-    deliveryDateController.clear();
-    enamelColorController.clear();
-
-    imageFromGallery = null;
-    imageFromCamera = null;
-    voiceNotePath = null;
+      // Optionally reset image state too
+      imageFromGallery = null;
+      imageFromCamera = null;
+      voiceNotePath = null;
+      _isLoading = false;
+    });
 
     setState(() {
       selectedItem = null;
@@ -608,8 +625,6 @@ class _OrderScreenState extends State<OrderScreen> {
       deliversGold = false;
       deliversStone = false;
       deliversDiamond = false;
-
-      _isLoading = false;
     });
   }
 
@@ -687,7 +702,7 @@ class _OrderScreenState extends State<OrderScreen> {
                       "Ref SKU", Icons.account_tree, refSKUController),
                   buildInputCard("C-Ref", Icons.account_tree, cRefController),
                   buildDropdownCard<String>(
-                    label: 'Plating',
+                    label: 'Plating/Rhodium',
                     icon: Icons.widgets,
                     selectedValue: selectedPlating,
                     items: itemPlating,
@@ -716,7 +731,6 @@ class _OrderScreenState extends State<OrderScreen> {
                   // buildInputCard(
                   //     "Findings", Icons.width_full, findingsController),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: buildInputCard(
@@ -727,6 +741,7 @@ class _OrderScreenState extends State<OrderScreen> {
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly
                           ],
+                          hintText: "1", // 👈 this shows 1 as a hint, not value
                           isRequired: false,
                         ),
                       ),
@@ -754,14 +769,12 @@ class _OrderScreenState extends State<OrderScreen> {
                   buildCommentBox(
                       "Item description", itemDescriptionController),
                   sectionTitle("Images"),
-
                   buildImagePicker("Image 1", imageFromGallery,
                       () => pickImage(ImageSource.gallery, false), image1Url),
                   const SizedBox(height: 16),
                   buildImagePicker("Image 2", imageFromCamera,
                       () => pickImage(ImageSource.gallery, true), image2Url),
                   const SizedBox(height: 16),
-
                   buildVoiceNotePicker(
                     "Voice Note",
                     voiceNotePath,
@@ -778,27 +791,16 @@ class _OrderScreenState extends State<OrderScreen> {
                       });
                     },
                   ),
+                  const SizedBox(height: 16),
 
-                  const SizedBox(height: 30),
-
-                  buildDateInputCard(
-                    'Delivery Date',
-                    deliveryDateController,
-                    context,
-                    initialDate: deliveryDate,
-                    isRequired: true,
+                  Column(
+                    children: [
+                      buildDeliveryDateField(),
+                      buildStampField(),
+                    ],
                   ),
-
-                  buildInputCard(
-                    'Stamp',
-                    Icons.tab, // or any relevant icon
-                    stampDateController,
-                    keyboardType: TextInputType.text,
-                    isRequired: false,
-                  ),
-
                   SwitchListTile(
-                    title: const Text('HUID?'),
+                    title: const Text('HUID'),
                     value: hasHUid,
                     onChanged: (value) {
                       setState(() {
@@ -807,7 +809,7 @@ class _OrderScreenState extends State<OrderScreen> {
                     },
                   ),
                   SwitchListTile(
-                    title: const Text('IGI?'),
+                    title: const Text('IGI'),
                     value: hasIGI,
                     onChanged: (value) {
                       setState(() {
@@ -817,7 +819,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   ),
 
                   SwitchListTile(
-                    title: const Text('We Deliver Gold?'),
+                    title: const Text('We Deliver Gold'),
                     value: deliversGold,
                     onChanged: (value) {
                       setState(() {
@@ -827,7 +829,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   ),
 
                   SwitchListTile(
-                    title: const Text('We Deliver Stone?'),
+                    title: const Text('We Deliver Stone'),
                     value: deliversStone,
                     onChanged: (value) {
                       setState(() {
@@ -837,7 +839,7 @@ class _OrderScreenState extends State<OrderScreen> {
                   ),
 
                   SwitchListTile(
-                    title: const Text('We Deliver Diamond?'),
+                    title: const Text('We Deliver Diamond'),
                     value: deliversDiamond,
                     onChanged: (value) {
                       setState(() {
@@ -921,13 +923,13 @@ class _OrderScreenState extends State<OrderScreen> {
 
   Widget buildInputCard(
     String label,
-    IconData? icon,
+    IconData icon,
     TextEditingController controller, {
     TextInputType keyboardType = TextInputType.text,
     List<TextInputFormatter>? inputFormatters,
     bool isRequired = false,
+    String? hintText, // 👈 added this
   }) {
-    pcsController.text = "1"; // set initial value
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -943,6 +945,7 @@ class _OrderScreenState extends State<OrderScreen> {
         decoration: InputDecoration(
           icon: Icon(icon, color: Colors.deepPurple),
           labelText: label,
+          hintText: hintText, // 👈 added here
           border: InputBorder.none,
         ),
         validator: isRequired
@@ -957,15 +960,8 @@ class _OrderScreenState extends State<OrderScreen> {
     );
   }
 
-  Widget buildDateInputCard(
-    String label,
-    TextEditingController controller,
-    BuildContext context, {
-    DateTime? initialDate,
-    DateTime? firstDate,
-    DateTime? lastDate,
-    bool isRequired = false,
-  }) {
+// DELIVERY DATE FIELD
+  Widget buildDeliveryDateField() {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -975,35 +971,59 @@ class _OrderScreenState extends State<OrderScreen> {
         boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
       ),
       child: TextFormField(
-        controller: controller,
+        controller: deliveryDateController,
         readOnly: true,
-        decoration: InputDecoration(
-          labelText: label,
+        decoration: const InputDecoration(
+          icon: Icon(Icons.calendar_today, color: Colors.deepPurple),
+          labelText: 'Delivery Date',
           border: InputBorder.none,
-          suffixIcon: const Icon(Icons.calendar_today),
         ),
         onTap: () async {
           FocusScope.of(context).requestFocus(FocusNode()); // Close keyboard
+
           DateTime? pickedDate = await showDatePicker(
             context: context,
-            initialDate: initialDate ?? DateTime.now(),
-            firstDate: firstDate ?? DateTime(2000),
-            lastDate: lastDate ?? DateTime(2100),
+            initialDate: deliveryDate ?? DateTime.now(),
+            firstDate: DateTime(2000),
+            lastDate: DateTime(2100),
           );
 
           if (pickedDate != null) {
-            controller.text =
-                "${pickedDate.day.toString().padLeft(2, '0')}-${pickedDate.month.toString().padLeft(2, '0')}-${pickedDate.year}";
+            setState(() {
+              deliveryDate = pickedDate;
+              deliveryDateController.text =
+                  "${pickedDate.day.toString().padLeft(2, '0')}-"
+                  "${pickedDate.month.toString().padLeft(2, '0')}-"
+                  "${pickedDate.year}";
+            });
           }
         },
-        validator: isRequired
-            ? (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return '$label is required';
-                }
-                return null;
-              }
-            : null,
+      ),
+    );
+  }
+
+// STAMP FIELD
+  Widget buildStampField() {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5)],
+      ),
+      child: TextFormField(
+        controller: stampDateController,
+        decoration: const InputDecoration(
+          icon: Icon(Icons.stay_primary_landscape, color: Colors.deepPurple),
+          labelText: 'Stamp',
+          border: InputBorder.none,
+        ),
+        onChanged: (value) {
+          setState(() {
+            hasStamp = value;
+          });
+        },
       ),
     );
   }
